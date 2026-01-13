@@ -1,0 +1,4256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Quiz Application - 200 Questions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode - FIXED VISIBILITY ISSUES */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .header {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .quiz-section {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .controls-panel,
+        body.dark-mode .question-grid {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        /* FIXED: Dark mode title visibility */
+        body.dark-mode .title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode controls title visibility */
+        body.dark-mode .controls-title,
+        body.dark-mode .grid-title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode jump to question label visibility */
+        body.dark-mode .jump-to-question label {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode question text visibility */
+        body.dark-mode .question-text {
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* FIXED: Dark mode option labels (A, B, C, D, E) visibility */
+        body.dark-mode .option-label {
+            background: #706fd3 !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct/incorrect answer visibility */
+        body.dark-mode .answer-option.correct {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border-color: #388e3c !important;
+        }
+
+        body.dark-mode .answer-option.incorrect {
+            background: #f44336 !important;
+            color: #ffffff !important;
+            border-color: #d32f2f !important;
+        }
+
+        body.dark-mode .answer-option.correct .option-label,
+        body.dark-mode .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct answer mode visibility */
+        body.dark-mode .answer-option.correct-answer-mode {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border: 2px solid #388e3c !important;
+            font-weight: 600;
+        }
+
+        body.dark-mode .answer-option.other-answer-mode {
+            background: #40407a !important;
+            color: #b0b0b0 !important;
+            border: 1px solid #706fd3 !important;
+            opacity: 0.7;
+        }
+
+        body.dark-mode .grid-item {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .grid-item:hover {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* Exam Mode Body Styles */
+        body.exam-mode {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        body.exam-mode.dark-mode {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Container */
+        body.exam-mode .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Header */
+        body.exam-mode .header {
+            background: #e8e8e8;
+            border-radius: 0;
+            margin-bottom: 0;
+            padding: 15px 20px;
+            box-shadow: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        body.exam-mode.dark-mode .header {
+            background: #2c2c54;
+            border-bottom: 1px solid #40407a;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Title */
+        body.exam-mode .title {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        body.exam-mode.dark-mode .title {
+            color: #e0e0e0;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer Section */
+        body.exam-mode .timer-section {
+            gap: 20px;
+        }
+
+        .timer-settings {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .timer-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Exam Mode Timer Settings - Show in exam mode */
+        body.exam-mode .timer-settings {
+            display: flex;
+        }
+
+        /* NEW: Question Shuffle Settings for Exam Mode */
+        .question-shuffle-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #fff3e0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #ff9800;
+            transition: all 0.3s ease;
+        }
+
+        .question-shuffle-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question shuffle settings only in exam mode */
+        body.exam-mode .question-shuffle-settings {
+            display: flex;
+        }
+
+        .question-count-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #2196f3;
+            transition: all 0.3s ease;
+        }
+
+        .question-count-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question count settings only in exam mode */
+        body.exam-mode .question-count-settings {
+            display: flex;
+        }
+
+        .timer-input, .count-input {
+            width: 60px;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .timer-label, .count-label, .shuffle-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .timer-start-btn, .count-reset-btn, .shuffle-toggle-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .timer-start-btn:hover, .count-reset-btn:hover, .shuffle-toggle-btn:hover {
+            background: #218838;
+        }
+
+        .count-reset-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-btn:hover {
+            background: #1976d2;
+        }
+
+        .shuffle-toggle-btn {
+            background: #ff9800;
+        }
+
+        .shuffle-toggle-btn:hover {
+            background: #f57c00;
+        }
+
+        .shuffle-toggle-btn.active {
+            background: #4caf50;
+        }
+
+        .shuffle-toggle-btn.active:hover {
+            background: #388e3c;
+        }
+
+        .timer {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 25px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #d32f2f;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer */
+        body.exam-mode .timer {
+            background: #ffcdd2;
+            border: 1px solid #f44336;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: #d32f2f;
+            font-size: 14px;
+        }
+
+        .timer.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Exam Mode Active Timer */
+        body.exam-mode .timer.active {
+            background: #ffcdd2;
+            border-color: #f44336;
+            color: #d32f2f;
+        }
+
+        /* NEW: Question Shuffle Display */
+        .question-shuffle-display {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #e65100;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-shuffle-display {
+            display: flex;
+        }
+
+        .question-shuffle-display.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* NEW: Question Count Display */
+        .question-count-display {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #1565c0;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-count-display {
+            display: flex;
+        }
+
+        .timer-reset-btn, .shuffle-reset-btn, .count-reset-display-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .timer-reset-btn.visible,
+        .shuffle-reset-btn.visible,
+        .count-reset-display-btn.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .timer-reset-btn:hover,
+        .shuffle-reset-btn:hover,
+        .count-reset-display-btn:hover {
+            background: #e64a19;
+        }
+
+        .count-reset-display-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-display-btn:hover {
+            background: #1976d2;
+        }
+
+        .timer-expired-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .timer-expired-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .timer-expired-message {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .result-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .result-message {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .result-message.passed {
+            border-left: 5px solid #4caf50;
+        }
+
+        .result-message.failed {
+            border-left: 5px solid #f44336;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .result-title.passed {
+            color: #4caf50;
+        }
+
+        .result-title.failed {
+            color: #f44336;
+        }
+
+        .result-stats {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .exit-btn {
+            background: #37474f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .exit-btn:hover {
+            background: #455a64;
+        }
+
+        /* Exam Mode Exit Button */
+        body.exam-mode .exit-btn {
+            background: #2c3e50;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Main Content */
+        body.exam-mode .main-content {
+            grid-template-columns: 1fr;
+            gap: 0;
+            background: #f5f5f5;
+        }
+
+        body.exam-mode.dark-mode .main-content {
+            background: #1a1a2e;
+        }
+
+        .quiz-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease, all 0.3s ease;
+        }
+
+        /* Exam Mode Quiz Section */
+        body.exam-mode .quiz-section {
+            background: #f5f5f5;
+            border-radius: 0;
+            padding: 20px;
+            box-shadow: none;
+            margin-bottom: 0;
+        }
+
+        body.exam-mode.dark-mode .quiz-section {
+            background: #1a1a2e;
+        }
+
+        .quiz-section.timer-expired {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .question-header {
+            background: #3f51b5;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Header */
+        body.exam-mode .question-header {
+            background: #0D0A69;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            justify-content: space-between;
+        }
+
+        .question-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Number */
+        body.exam-mode .question-number {
+            background: #34495e;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .question-counter {
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Exam Mode Question Counter */
+        body.exam-mode .question-counter {
+            display: inline-block;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Exam Mode Question Text - NO OVERLAPPING NUMBER */
+        body.exam-mode .question-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        body.exam-mode.dark-mode .question-text {
+            color: #e0e0e0;
+        }
+
+        .answers {
+            space-y: 12px;
+        }
+
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Exam Mode Answer Options */
+        body.exam-mode .answer-option {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 0;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        body.exam-mode.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        /* Exam Mode Answer Option Hover */
+        body.exam-mode .answer-option:hover:not(.disabled) {
+            background: #e8f4fd;
+            border-color: #2196f3;
+            transform: none;
+        }
+
+        body.exam-mode.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        /* Exam Mode Selected Answer */
+        body.exam-mode .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .answer-option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #388e3c;
+        }
+
+        .answer-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #d32f2f;
+        }
+
+        .answer-option.correct-answer-mode {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+            font-weight: 600;
+        }
+
+        .answer-option.other-answer-mode {
+            background: #f5f5f5;
+            color: #757575;
+            border: 1px solid #e0e0e0;
+            opacity: 0.7;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-option.timer-expired {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .option-label {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        /* Exam Mode Option Label */
+        body.exam-mode .option-label {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            background: white;
+            font-size: 0;
+            position: relative;
+        }
+
+        body.exam-mode .answer-option.selected .option-label {
+            background: #2196f3;
+            border-color: #2196f3;
+        }
+
+        body.exam-mode .answer-option.selected .option-label::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .answer-option.selected .option-label,
+        .answer-option.correct .option-label,
+        .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .option-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Navigation */
+        body.exam-mode .navigation {
+            justify-content: flex-start;
+            gap: 15px;
+            border-top: none;
+            margin-top: 20px;
+            padding-top: 0;
+        }
+
+        .nav-btn {
+            background: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        /* Exam Mode Navigation Buttons */
+        body.exam-mode .nav-btn {
+            background: #2196f3;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .nav-btn:hover {
+            background: #303f9f;
+        }
+
+        body.exam-mode .nav-btn:hover {
+            background: #1976d2;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Sidebar - HIDE IN EXAM MODE */
+        body.exam-mode .sidebar {
+            display: none;
+        }
+
+        .controls-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .mode-toggles {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .toggle-btn:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-btn.active {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .jump-to-question {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .jump-to-question label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .jump-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .jump-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .jump-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .jump-btn:hover {
+            background: #1976d2;
+        }
+
+        .question-grid {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .grid-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+        }
+
+        .grid-item {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .grid-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .grid-item.current {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .grid-item.answered {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Correct answer in grid (Green) */
+        .grid-item.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Incorrect answer in grid (Red) */
+        .grid-item.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .grid-item.unanswered {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+
+        /* FIXED: SINGLE Exam Mode Question Grid - Navy Blue Header and White Background */
+        .exam-question-grid {
+            display: none;
+            margin-top: 20px;
+        }
+
+        body.exam-mode .exam-question-grid {
+            display: block;
+        }
+
+        .exam-grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #0D0A69;
+            padding: 10px 15px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .exam-grid-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .exam-grid-toggle {
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .exam-grid-toggle:hover {
+            background: #4a6741;
+        }
+
+        /* FIXED: White background for exam grid container */
+        .exam-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 15px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .exam-grid-container.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            padding: 0;
+        }
+
+        /* FIXED: Exam Grid Items - Red color like reference image */
+        .exam-grid-item {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #c0392b;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 11px;
+            transition: all 0.3s;
+            background: #e74c3c;
+            color: white;
+        }
+
+        .exam-grid-item:hover {
+            background: #c0392b;
+        }
+
+        .exam-grid-item.current {
+            background: #3498db;
+            border-color: #2980b9;
+        }
+
+        /* Answered questions - Red background like in reference */
+        .exam-grid-item.answered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* Unanswered questions - Red background like in reference */
+        .exam-grid-item.unanswered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* FIXED: Hide mobile question dropdown in exam mode */
+        .mobile-question-dropdown {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* FIXED: Hide mobile dropdown in exam mode */
+        body.exam-mode .mobile-question-dropdown {
+            display: none !important;
+        }
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .dropdown-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .dropdown-arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .dropdown-content.expanded {
+            max-height: 300px;
+            overflow-y: auto; /* Added scroll functionality */
+            padding-bottom: 10px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .timer-section {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .quiz-section {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-option {
+                padding: 12px 15px;
+                gap: 10px;
+            }
+
+            .option-label {
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+
+            .controls-panel,
+            .question-grid {
+                padding: 15px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 6px;
+            }
+
+            .grid-item {
+                width: 35px;
+                height: 35px;
+                font-size: 11px;
+            }
+
+            /* Show mobile dropdown instead of sidebar grid in NON-EXAM mode only */
+            .question-grid {
+                display: none;
+            }
+
+            .mobile-question-dropdown {
+                display: block;
+            }
+
+            /* FIXED: Hide mobile dropdown in exam mode on mobile too */
+            body.exam-mode .mobile-question-dropdown {
+                display: none !important;
+            }
+
+            /* Exam Mode Mobile Adjustments */
+            body.exam-mode .container {
+                padding: 0;
+            }
+
+            body.exam-mode .header {
+                padding: 10px 15px;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            body.exam-mode .timer-section {
+                gap: 10px;
+            }
+
+            body.exam-mode .quiz-section {
+                padding: 15px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 10px 12px;
+                margin-bottom: 6px;
+            }
+
+            body.exam-mode .option-label {
+                width: 18px;
+                height: 18px;
+            }
+
+            body.exam-mode .navigation {
+                flex-direction: row;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            body.exam-mode .nav-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                width: auto;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .title {
+                font-size: 18px;
+            }
+
+            body.exam-mode .title {
+                font-size: 14px;
+            }
+
+            .timer-input, .count-input {
+                width: 50px;
+                font-size: 12px;
+            }
+
+            .timer {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            body.exam-mode .timer {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .question-text {
+                font-size: 14px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 13px;
+            }
+
+            .answer-option {
+                padding: 10px 12px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 8px 10px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+                gap: 4px;
+            }
+
+            .grid-item {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Enhanced Quiz Application</div>
+            <div class="timer-section">
+                <div class="timer-settings">
+                    <span class="timer-label">Minutes:</span>
+                    <input type="number" class="timer-input" id="minutesInput" value="30" min="1" max="180">
+                    <span class="timer-label">Seconds:</span>
+                    <input type="number" class="timer-input" id="secondsInput" value="0" min="0" max="59">
+                    <button class="timer-start-btn" onclick="startTimer()">Start</button>
+                </div>
+                
+                <div class="question-shuffle-settings">
+                    <span class="shuffle-label">🔀 Shuffle Questions:</span>
+                    <button class="shuffle-toggle-btn" id="shuffleToggleBtn" onclick="toggleQuestionShuffle()">Enable</button>
+                </div>
+                
+                <div class="question-count-settings">
+                    <span class="count-label">Questions:</span>
+                    <input type="number" class="count-input" id="questionCountInput" value="200" min="1" max="200">
+                    <span class="count-label">/ 200</span>
+                    <button class="count-reset-btn" onclick="setQuestionCount()">Set</button>
+                </div>
+                
+                <div class="timer" id="timer">
+                    <span>⏰</span>
+                    <span id="timerDisplay">No timer set</span>
+                    <button class="timer-reset-btn" id="timerResetBtn" onclick="resetTimer()">Reset</button>
+                </div>
+                
+                <div class="question-shuffle-display" id="questionShuffleDisplay">
+                    <span>🔀</span>
+                    <span id="shuffleDisplayText">Shuffle: Off</span>
+                    <button class="shuffle-reset-btn" id="shuffleResetBtn" onclick="resetQuestionShuffle()">Reset</button>
+                </div>
+                
+                <div class="question-count-display" id="questionCountDisplay">
+                    <span>📊</span>
+                    <span id="countDisplayText">200 / 200</span>
+                    <button class="count-reset-display-btn" id="countResetDisplayBtn" onclick="resetQuestionCount()">Reset</button>
+                </div>
+                
+                <button class="exit-btn" onclick="exitQuiz()">
+                    <span>🚪</span>
+                    <span id="exitBtnText">Exit</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="quiz-section" id="quizSection">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Question 1</div>
+                    <div class="question-counter" id="questionCounter">1 / 200</div>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Loading question...
+                </div>
+                
+                <div class="answers" id="answersContainer">
+                    </div>
+                
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+                    <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+                    <button class="nav-btn" id="finishBtn" onclick="finishQuiz()" style="display: none;">Finish</button>
+                    <button class="nav-btn" id="submitBtn" onclick="finishQuiz()" style="display: none;">Submit</button>
+                </div>
+
+                <div class="mobile-question-dropdown" id="mobileQuestionDropdown">
+                    <div class="dropdown-header" onclick="toggleMobileDropdown()">
+                        <div class="dropdown-title">Question Navigator</div>
+                        <div class="dropdown-arrow" id="dropdownArrow">▼</div>
+                    </div>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <div class="grid-container" id="mobileQuestionGrid">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="exam-question-grid" id="examQuestionGrid">
+                    <div class="exam-grid-header">
+                        <div class="exam-grid-title">Question Navigator</div>
+                        <button class="exam-grid-toggle" id="examGridToggle" onclick="toggleExamGrid()">Collapse</button>
+                    </div>
+                    <div class="exam-grid-container" id="examGridContainer">
+                        </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="controls-panel">
+                    <div class="controls-title">Quiz Controls</div>
+                    <div class="mode-toggles">
+                        <button class="toggle-btn" id="darkModeBtn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                        <button class="toggle-btn" id="answerModeBtn" onclick="toggleAnswerMode()">💡 Answer Mode</button>
+                        <button class="toggle-btn" id="questionShuffleModeBtn" onclick="toggleQuestionShuffleMode()">🔀 Shuffle Questions</button>
+                        <button class="toggle-btn" id="examModeBtn" onclick="toggleExamMode()">🎓 Simulate Exam Mode</button>
+                    </div>
+                    <div class="jump-to-question">
+                        <label for="jumpInput">Jump to Question:</label>
+                        <div class="jump-input-group">
+                            <input type="number" class="jump-input" id="jumpInput" min="1" max="200" placeholder="Enter question number">
+                            <button class="jump-btn" onclick="jumpToQuestionNumber()">Go</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-grid">
+                    <div class="grid-title">Question Navigator</div>
+                    <div class="grid-container" id="questionGrid">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timer-expired-overlay" id="timerExpiredOverlay">
+        <div class="timer-expired-message">
+            <h2>⏰ Time's Up!</h2>
+            <p>The timer has expired. Your quiz has been automatically submitted.</p>
+            <button class="nav-btn" onclick="hideTimerExpiredOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-message" id="resultMessage">
+            <div class="result-title" id="resultTitle">Quiz Completed!</div>
+            <div class="result-stats" id="resultStats">
+                </div>
+            <button class="nav-btn" onclick="hideResultOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const questions = [
+        {
+            question: "Which vital statistic is crucial for assessing prenatal care coverage?",
+            answers: [
+                { text: "Percentage of births attended by skilled health personnel", correct: true },
+                { text: "Crude Birth Rate", correct: false },
+                { text: "Net Migration Rate", correct: false },
+                { text: "Population Density", correct: false },
+                { text: "Adult Literacy Rate", correct: false },
+            ]
+        },
+        {
+            question: "What is the primary purpose of demographic data in obstetrics?",
+            answers: [
+                { text: "To plan and allocate resources for maternal and child health services.", correct: true },
+                { text: "To calculate the national income.", correct: false },
+                { text: "To determine voting patterns.", correct: false },
+                { text: "To assess climate change impact.", correct: false },
+                { text: "To track international trade.", correct: false },
+            ]
+        },
+        {
+            question: "A country with a rapidly declining birth rate and low death rate is in which demographic transition phase?",
+            answers: [
+                { text: "Late Expanding", correct: true },
+                { text: "Early Expanding", correct: false },
+                { text: "Stationary", correct: false },
+                { text: "Pre-Expanding", correct: false },
+                { text: "Contracting", correct: false },
+            ]
+        },
+        {
+            question: "If a region has a high Maternal Mortality Ratio, which intervention is most directly targeted to reduce it?",
+            answers: [
+                { text: "Ensuring access to emergency obstetric care.", correct: true },
+                { text: "Promoting primary education for boys.", correct: false },
+                { text: "Increasing agricultural production.", correct: false },
+                { text: "Building more roads.", correct: false },
+                { text: "Expanding internet access.", correct: false },
+            ]
+        },
+        {
+            question: "In a community with a high TFR and poor access to contraception, which national policy would be most effective for sustainable population health?",
+            answers: [
+                { text: "Implementing comprehensive family planning programs.", correct: true },
+                { text: "Building a new international airport.", correct: false },
+                { text: "Increasing the retirement age.", correct: false },
+                { text: "Subsidizing fossil fuels.", correct: false },
+                { text: "Focusing only on curative hospital services.", correct: false },
+            ]
+        },
+        {
+            question: "Analysis of vital statistics reveals a sudden spike in neonatal deaths. What should be the first step for an obstetrician in public health?",
+            answers: [
+                { text: "Investigate the causes, focusing on antenatal and intrapartum care quality.", correct: true },
+                { text: "Recommend increasing taxes.", correct: false },
+                { text: "Advise people to change their diets.", correct: false },
+                { text: "Ignore it as a statistical anomaly.", correct: false },
+                { text: "Focus solely on treating elderly patients.", correct: false },
+            ]
+        },
+        {
+            question: "A district has a low MMR but a high Perinatal Mortality Rate. What does this discrepancy most likely indicate?",
+            answers: [
+                { text: "Good maternal care but deficiencies in neonatal and obstetric care during delivery.", correct: true },
+                { text: "Excellent overall healthcare system.", correct: false },
+                { text: "Poor data collection methods only.", correct: false },
+                { text: "High prevalence of chronic diseases in mothers.", correct: false },
+                { text: "Widespread use of alternative medicine.", correct: false },
+            ]
+        },
+        {
+            question: "You are planning a resource allocation for a region with a youthful population. Which service should be prioritized based on demographic data?",
+            answers: [
+                { text: "Adolescent-friendly reproductive health services and antenatal care.", correct: true },
+                { text: "Geriatric nursing homes.", correct: false },
+                { text: "Cardiac surgery units.", correct: false },
+                { text: "Cosmetic surgery clinics.", correct: false },
+                { text: "Dental clinics for adults.", correct: false },
+            ]
+        },
+        {
+            question: "The cervical opening is called:",
+            answers: [
+                { text: "External os", correct: true },
+                { text: "Internal os", correct: false },
+                { text: "Cervical canal", correct: false },
+                { text: "Fornix", correct: false },
+                { text: "Hymen", correct: false },
+            ]
+        },
+        {
+            question: "Ovarian follicles contain:",
+            answers: [
+                { text: "Oocytes", correct: true },
+                { text: "Sperm", correct: false },
+                { text: "Zygotes", correct: false },
+                { text: "Embryos", correct: false },
+                { text: "Fetuses", correct: false },
+            ]
+        },
+        {
+            question: "The broad ligament supports the:",
+            answers: [
+                { text: "Uterus", correct: true },
+                { text: "Bladder", correct: false },
+                { text: "Rectum", correct: false },
+                { text: "Appendix", correct: false },
+                { text: "Liver", correct: false },
+            ]
+        },
+        {
+            question: "The fimbriae are part of:",
+            answers: [
+                { text: "Fallopian tubes", correct: true },
+                { text: "Ovaries", correct: false },
+                { text: "Uterus", correct: false },
+                { text: "Vagina", correct: false },
+                { text: "Cervix", correct: false },
+            ]
+        },
+        {
+            question: "During pregnancy, the lower uterine segment forms from:",
+            answers: [
+                { text: "Isthmus", correct: true },
+                { text: "Fundus", correct: false },
+                { text: "Cervix", correct: false },
+                { text: "Cornua", correct: false },
+                { text: "Body", correct: false },
+            ]
+        },
+        {
+            question: "Cervical effacement means:",
+            answers: [
+                { text: "Thinning", correct: true },
+                { text: "Opening", correct: false },
+                { text: "Bleeding", correct: false },
+                { text: "Infection", correct: false },
+                { text: "Thickening", correct: false },
+            ]
+        },
+        {
+            question: "Vaginal delivery is possible due to pelvic:",
+            answers: [
+                { text: "Flexibility", correct: true },
+                { text: "Rigidity", correct: false },
+                { text: "Size alone", correct: false },
+                { text: "Shape alone", correct: false },
+                { text: "Bone density", correct: false },
+            ]
+        },
+        {
+            question: "Uterine inversion is dangerous due to:",
+            answers: [
+                { text: "Hemorrhage", correct: true },
+                { text: "Infection", correct: false },
+                { text: "Pain", correct: false },
+                { text: "Infertility", correct: false },
+                { text: "Cancer risk", correct: false },
+            ]
+        },
+        {
+            question: "Zygote formation requires:",
+            answers: [
+                { text: "Fertilization", correct: true },
+                { text: "Implantation", correct: false },
+                { text: "Ovulation", correct: false },
+                { text: "Menstruation", correct: false },
+                { text: "Gestation", correct: false },
+            ]
+        },
+        {
+            question: "Corpus luteum secretes:",
+            answers: [
+                { text: "Progesterone", correct: true },
+                { text: "Estrogen", correct: false },
+                { text: "Testosterone", correct: false },
+                { text: "FSH", correct: false },
+                { text: "LH", correct: false },
+            ]
+        },
+        {
+            question: "Implantation occurs about days after fertilization:",
+            answers: [
+                { text: "2025-07-06 00:00:00", correct: true },
+                { text: "2025-02-01 00:00:00", correct: false },
+                { text: "14-15", correct: false },
+                { text: "20-21", correct: false },
+                { text: "28-30", correct: false },
+            ]
+        },
+        {
+            question: "The acrosome reaction helps sperm:",
+            answers: [
+                { text: "Penetrate egg", correct: true },
+                { text: "Swim faster", correct: false },
+                { text: "Survive longer", correct: false },
+                { text: "Divide", correct: false },
+                { text: "Migrate", correct: false },
+            ]
+        },
+        {
+            question: "Ectopic pregnancy most often occurs in:",
+            answers: [
+                { text: "Fallopian tube", correct: true },
+                { text: "Uterus", correct: false },
+                { text: "Ovary", correct: false },
+                { text: "Cervix", correct: false },
+                { text: "Abdomen", correct: false },
+            ]
+        },
+        {
+            question: "Infertility may result from:",
+            answers: [
+                { text: "Tubal blockage", correct: true },
+                { text: "High fertility", correct: false },
+                { text: "Normal ovulation", correct: false },
+                { text: "Regular cycles", correct: false },
+                { text: "Good health", correct: false },
+            ]
+        },
+        {
+            question: "Ovulation induction is commonly done with:",
+            answers: [
+                { text: "Clomiphene", correct: true },
+                { text: "Antibiotics", correct: false },
+                { text: "Analgesics", correct: false },
+                { text: "Steroids", correct: false },
+                { text: "Antihistamines", correct: false },
+            ]
+        },
+        {
+            question: "The two-cell theory explains:",
+            answers: [
+                { text: "Steroid production", correct: true },
+                { text: "Ovulation", correct: false },
+                { text: "Fertilization", correct: false },
+                { text: "Implantation", correct: false },
+                { text: "Menstruation", correct: false },
+            ]
+        },
+        {
+            question: "The amniotic fluid functions to:",
+            answers: [
+                { text: "Protect fetus", correct: true },
+                { text: "Provide nutrition", correct: false },
+                { text: "Exchange gases", correct: false },
+                { text: "Produce hormones", correct: false },
+                { text: "Filter waste", correct: false },
+            ]
+        },
+        {
+            question: "The fetal circulatory shunt between pulmonary artery and aorta is:",
+            answers: [
+                { text: "Ductus arteriosus", correct: true },
+                { text: "Foramen ovale", correct: false },
+                { text: "Ductus venosus", correct: false },
+                { text: "Umbilical vein", correct: false },
+                { text: "Umbilical artery", correct: false },
+            ]
+        },
+        {
+            question: "Placental transfer is mainly by:",
+            answers: [
+                { text: "Diffusion", correct: true },
+                { text: "Active transport", correct: false },
+                { text: "Pinocytosis", correct: false },
+                { text: "Phagocytosis", correct: false },
+                { text: "Filtration", correct: false },
+            ]
+        },
+        {
+            question: "Vernix caseosa protects fetal skin from:",
+            answers: [
+                { text: "Amniotic fluid", correct: true },
+                { text: "Infection", correct: false },
+                { text: "Trauma", correct: false },
+                { text: "Light", correct: false },
+                { text: "Sound", correct: false },
+            ]
+        },
+        {
+            question: "Amniocentesis tests:",
+            answers: [
+                { text: "Amniotic fluid", correct: true },
+                { text: "Maternal blood", correct: false },
+                { text: "Fetal blood", correct: false },
+                { text: "Placental tissue", correct: false },
+                { text: "Cervical mucus", correct: false },
+            ]
+        },
+        {
+            question: "Fetal distress may cause passage of:",
+            answers: [
+                { text: "Meconium", correct: true },
+                { text: "Urine", correct: false },
+                { text: "Blood", correct: false },
+                { text: "Mucus", correct: false },
+                { text: "Vernix", correct: false },
+            ]
+        },
+        {
+            question: "From which fetal structure does the placenta primarily develop?",
+            answers: [
+                { text: "Trophoblast", correct: true },
+                { text: "Embryoblast", correct: false },
+                { text: "Yolk sac", correct: false },
+                { text: "Amnion", correct: false },
+                { text: "Chorion", correct: false },
+            ]
+        },
+        {
+            question: "The process by which the blastocyst attaches to the endometrial wall is called:",
+            answers: [
+                { text: "Implantation", correct: true },
+                { text: "Fertilization", correct: false },
+                { text: "Gastrulation", correct: false },
+                { text: "Placentation", correct: false },
+                { text: "Organogenesis", correct: false },
+            ]
+        },
+        {
+            question: "Preconception weight should be:",
+            answers: [
+                { text: "Normal BMI", correct: true },
+                { text: "Underweight", correct: false },
+                { text: "Overweight", correct: false },
+                { text: "Obese", correct: false },
+                { text: "Variable", correct: false },
+            ]
+        },
+        {
+            question: "Smoking cessation before pregnancy reduces risk of:",
+            answers: [
+                { text: "Low birth weight", correct: true },
+                { text: "Twins", correct: false },
+                { text: "Big baby", correct: false },
+                { text: "Early labor", correct: false },
+                { text: "Prolonged pregnancy", correct: false },
+            ]
+        },
+        {
+            question: "Folic acid prevents:",
+            answers: [
+                { text: "Neural tube defects", correct: true },
+                { text: "Heart defects", correct: false },
+                { text: "Cleft lip", correct: false },
+                { text: "Down syndrome", correct: false },
+                { text: "Diabetes", correct: false },
+            ]
+        },
+        {
+            question: "Preconception genetic counseling is for:",
+            answers: [
+                { text: "Family history of disorders", correct: true },
+                { text: "All couples", correct: false },
+                { text: "Older men only", correct: false },
+                { text: "Young women", correct: false },
+                { text: "Infertile only", correct: false },
+            ]
+        },
+        {
+            question: "Women with PKU planning pregnancy need:",
+            answers: [
+                { text: "Dietary control", correct: true },
+                { text: "Exercise", correct: false },
+                { text: "Rest", correct: false },
+                { text: "Surgery", correct: false },
+                { text: "Drugs", correct: false },
+            ]
+        },
+        {
+            question: "Preconception thyroid optimization prevents:",
+            answers: [
+                { text: "Fetal brain damage", correct: true },
+                { text: "Prematurity", correct: false },
+                { text: "Twins", correct: false },
+                { text: "Infection", correct: false },
+                { text: "Bleeding", correct: false },
+            ]
+        },
+        {
+            question: "Preconception care for hypertension involves:",
+            answers: [
+                { text: "Medication adjustment", correct: true },
+                { text: "No change", correct: false },
+                { text: "Stopping drugs", correct: false },
+                { text: "Diet only", correct: false },
+                { text: "Exercise only", correct: false },
+            ]
+        },
+        {
+            question: "What is the recommended daily dose of folic acid for most women during the preconception period to prevent neural tube defects?",
+            answers: [
+                { text: "400 mcg", correct: true },
+                { text: "1 mg", correct: false },
+                { text: "5 mg", correct: false },
+                { text: "100 mcg", correct: false },
+                { text: "200 mcg", correct: false },
+            ]
+        },
+        {
+            question: "Fetal heart tones can be Doppler-detected at weeks:",
+            answers: [
+                { text: "2025-12-10 00:00:00", correct: true },
+                { text: "2025-06-04 00:00:00", correct: false },
+                { text: "2025-08-06 00:00:00", correct: false },
+                { text: "16-18", correct: false },
+                { text: "20-22", correct: false },
+            ]
+        },
+        {
+            question: "Braxton Hicks contractions are:",
+            answers: [
+                { text: "Painless", correct: true },
+                { text: "Painful", correct: false },
+                { text: "Regular", correct: false },
+                { text: "Strong", correct: false },
+                { text: "Progressive", correct: false },
+            ]
+        },
+        {
+            question: "Naegele's rule calculates:",
+            answers: [
+                { text: "EDD", correct: true },
+                { text: "Gestational age", correct: false },
+                { text: "Fetal weight", correct: false },
+                { text: "Labor date", correct: false },
+                { text: "Conception date", correct: false },
+            ]
+        },
+        {
+            question: "Chadwick's sign is:",
+            answers: [
+                { text: "Bluish discoloration", correct: true },
+                { text: "Cervical softening", correct: false },
+                { text: "Uterine enlargement", correct: false },
+                { text: "Breast changes", correct: false },
+                { text: "Abdominal growth", correct: false },
+            ]
+        },
+        {
+            question: "Positive pregnancy test is likely at hCG level:",
+            answers: [
+                { text: ">25 mIU/mL", correct: true },
+                { text: "<5 mIU/mL", correct: false },
+                { text: "10-15 mIU/mL", correct: false },
+                { text: "50-100 mIU/mL", correct: false },
+                { text: ">1000 mIU/mL", correct: false },
+            ]
+        },
+        {
+            question: "Fetal movements first felt at weeks:",
+            answers: [
+                { text: "18-20", correct: true },
+                { text: "2014-12-01 00:00:00", correct: false },
+                { text: "24-26", correct: false },
+                { text: "28-30", correct: false },
+                { text: "32-34", correct: false },
+            ]
+        },
+        {
+            question: "A pregnant woman with bleeding and pain may have:",
+            answers: [
+                { text: "Ectopic pregnancy", correct: true },
+                { text: "Normal pregnancy", correct: false },
+                { text: "False pregnancy", correct: false },
+                { text: "Menopause", correct: false },
+                { text: "Infection", correct: false },
+            ]
+        },
+        {
+            question: "Pseudocyesis is:",
+            answers: [
+                { text: "False pregnancy", correct: true },
+                { text: "Ectopic pregnancy", correct: false },
+                { text: "Molar pregnancy", correct: false },
+                { text: "Normal pregnancy", correct: false },
+                { text: "Twin pregnancy", correct: false },
+            ]
+        },
+        {
+            question: "Inaccurate dating may cause:",
+            answers: [
+                { text: "Incorrect EDD", correct: true },
+                { text: "Wrong diagnosis", correct: false },
+                { text: "No effect", correct: false },
+                { text: "Early labor", correct: false },
+                { text: "Late delivery", correct: false },
+            ]
+        },
+        {
+            question: "Serial hCG monitoring is used for suspected:",
+            answers: [
+                { text: "Ectopic pregnancy", correct: true },
+                { text: "Normal pregnancy", correct: false },
+                { text: "Labor", correct: false },
+                { text: "Delivery", correct: false },
+                { text: "Menopause", correct: false },
+            ]
+        },
+        {
+            question: "The glomerular filtration rate (GFR) during pregnancy:",
+            answers: [
+                { text: "Increases", correct: true },
+                { text: "Decreases", correct: false },
+                { text: "Remains unchanged", correct: false },
+                { text: "Fluctuates widely", correct: false },
+                { text: "Becomes negligible", correct: false },
+            ]
+        },
+        {
+            question: "Striae gravidarum are caused by:",
+            answers: [
+                { text: "Skin stretching", correct: true },
+                { text: "Hormonal changes", correct: false },
+                { text: "Weight gain", correct: false },
+                { text: "Fluid retention", correct: false },
+                { text: "Genetic factors", correct: false },
+            ]
+        },
+        {
+            question: "Which cardiovascular change helps prevent supine hypotension?",
+            answers: [
+                { text: "Lateral positioning", correct: true },
+                { text: "Standing position", correct: false },
+                { text: "Supine position", correct: false },
+                { text: "Prone position", correct: false },
+                { text: "Sitting position", correct: false },
+            ]
+        },
+        {
+            question: "The increase in blood volume peaks at which gestational period?",
+            answers: [
+                { text: "32-34 weeks", correct: true },
+                { text: "12-14 weeks", correct: false },
+                { text: "20-22 weeks", correct: false },
+                { text: "38-40 weeks", correct: false },
+                { text: "24-26 weeks", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is a normal hematological change in pregnancy?",
+            answers: [
+                { text: "Physiological anemia", correct: true },
+                { text: "Leukopenia", correct: false },
+                { text: "Thrombocytosis", correct: false },
+                { text: "Polycythemia", correct: false },
+                { text: "Erythrocytosis", correct: false },
+            ]
+        },
+        {
+            question: "Progesterone causes relaxation of smooth muscle leading to:",
+            answers: [
+                { text: "Constipation", correct: true },
+                { text: "Diarrhea", correct: false },
+                { text: "Hypertension", correct: false },
+                { text: "Tachycardia", correct: false },
+                { text: "Bronchoconstriction", correct: false },
+            ]
+        },
+        {
+            question: "A pregnant woman presents with syncope in supine position. This is due to:",
+            answers: [
+                { text: "Aortocaval compression", correct: true },
+                { text: "Hypoglycemia", correct: false },
+                { text: "Anemia", correct: false },
+                { text: "Dehydration", correct: false },
+                { text: "Infection", correct: false },
+            ]
+        },
+        {
+            question: "Which change in coagulation system protects against hemorrhage during delivery?",
+            answers: [
+                { text: "Hypercoagulable state", correct: true },
+                { text: "Hypocoagulable state", correct: false },
+                { text: "Normal coagulation", correct: false },
+                { text: "Fibrinolysis", correct: false },
+                { text: "Platelet dysfunction", correct: false },
+            ]
+        },
+        {
+            question: "Increased skin pigmentation in pregnancy is caused by:",
+            answers: [
+                { text: "Melanocyte-stimulating hormone", correct: true },
+                { text: "Decreased estrogen", correct: false },
+                { text: "Low progesterone", correct: false },
+                { text: "Vitamin deficiency", correct: false },
+                { text: "Iron overload", correct: false },
+            ]
+        },
+        {
+            question: "Which renal change increases risk of urinary tract infections?",
+            answers: [
+                { text: "Urinary stasis", correct: true },
+                { text: "Decreased GFR", correct: false },
+                { text: "Renal vasoconstriction", correct: false },
+                { text: "Proteinuria", correct: false },
+                { text: "Glycosuria", correct: false },
+            ]
+        },
+        {
+            question: "A woman at 16 weeks gestation has a MSAFP (maternal serum alpha-fetoprotein) level significantly higher than normal. What is the most likely associated fetal condition?",
+            answers: [
+                { text: "Neural tube defect", correct: true },
+                { text: "Down syndrome", correct: false },
+                { text: "Fetal growth restriction", correct: false },
+                { text: "Preterm labour", correct: false },
+                { text: "Gestational diabetes", correct: false },
+            ]
+        },
+        {
+            question: "A primigravida at 39 weeks has a blood pressure of 150/100 mmHg and 2+ proteinuria on dipstick. She reports a severe headache. What is the most urgent initial action?",
+            answers: [
+                { text: "Administer intravenous antihypertensive therapy (e.g., Labetalol) and plan for delivery", correct: true },
+                { text: "Send her home with oral antihypertensives", correct: false },
+                { text: "Schedule an induction for next week", correct: false },
+                { text: "Perform a fetal biophysical profile", correct: false },
+                { text: "Obtain a 24-hour urine collection", correct: false },
+            ]
+        },
+        {
+            question: "A patient with a known thyroid disorder is pregnant. Why is trimester-specific monitoring of thyroid function tests crucial?",
+            answers: [
+                { text: "Pregnancy affects thyroid hormone requirements, and imbalance can harm fetal neurodevelopment", correct: true },
+                { text: "To determine the fetal thyroid function", correct: false },
+                { text: "To prepare for a cesarean section", correct: false },
+                { text: "It is only needed if the mother is symptomatic", correct: false },
+                { text: "To prevent maternal weight gain", correct: false },
+            ]
+        },
+        {
+            question: "What is the primary purpose of administering corticosteroids to a pregnant woman between 24 and 34 weeks of gestation?",
+            answers: [
+                { text: "To accelerate fetal lung maturation", correct: true },
+                { text: "To stop preterm labour", correct: false },
+                { text: "To treat maternal infection", correct: false },
+                { text: "To lower maternal blood pressure", correct: false },
+                { text: "To reduce fetal movements", correct: false },
+            ]
+        },
+        {
+            question: "A patient at 10 weeks gestation reports taking valproate for epilepsy. What is the primary aim of antenatal management in this case?",
+            answers: [
+                { text: "To switch her to a safer antiepileptic drug to reduce teratogenic risk", correct: true },
+                { text: "To increase the dose of valproate", correct: false },
+                { text: "To advise immediate termination of pregnancy", correct: false },
+                { text: "To stop all medication abruptly", correct: false },
+                { text: "No action is needed", correct: false },
+            ]
+        },
+        {
+            question: "What is the most accurate method for determining gestational age in the first trimester?",
+            answers: [
+                { text: "Crown-rump length (CRL) measurement by ultrasound", correct: true },
+                { text: "Last menstrual period (LMP) date", correct: false },
+                { text: "Fundal height measurement", correct: false },
+                { text: "Serum hCG level", correct: false },
+                { text: "Date of quickening (first fetal movements)", correct: false },
+            ]
+        },
+        {
+            question: "A woman at 32 weeks with a history of a low-lying placenta at 20 weeks presents for a follow-up scan. What is the primary goal of this ultrasound?",
+            answers: [
+                { text: "To confirm the location of the placenta relative to the internal cervical os", correct: true },
+                { text: "To estimate fetal weight", correct: false },
+                { text: "To check for fetal anomalies", correct: false },
+                { text: "To assess amniotic fluid volume only", correct: false },
+                { text: "To determine fetal position", correct: false },
+            ]
+        },
+        {
+            question: "What is the primary purpose of routine iron supplementation during pregnancy?",
+            answers: [
+                { text: "To prevent maternal iron deficiency anemia", correct: true },
+                { text: "To enhance fetal brain development", correct: false },
+                { text: "To reduce the risk of preeclampsia", correct: false },
+                { text: "To prevent gestational diabetes", correct: false },
+                { text: "To increase maternal energy levels", correct: false },
+            ]
+        },
+        {
+            question: "A patient at 12 weeks gestation has a urine dipstick showing 2+ proteinuria but no hypertension. What is the most appropriate next step?",
+            answers: [
+                { text: "Obtain a midstream urine culture to rule out asymptomatic bacteriuria", correct: true },
+                { text: "Diagnose preeclampsia and start treatment", correct: false },
+                { text: "Schedule immediate delivery", correct: false },
+                { text: "Ignore it as a normal finding in pregnancy", correct: false },
+                { text: "Refer to a nephrologist", correct: false },
+            ]
+        },
+        {
+            question: "What is the significance of measuring cervical length via ultrasound in the second trimester?",
+            answers: [
+                { text: "It helps identify women at increased risk of preterm birth", correct: true },
+                { text: "It determines the need for cesarean section", correct: false },
+                { text: "It diagnoses placental insufficiency", correct: false },
+                { text: "It measures fetal growth velocity", correct: false },
+                { text: "It detects fetal anomalies", correct: false },
+            ]
+        },
+        {
+            question: "Incomplete abortion requires:",
+            answers: [
+                { text: "Uterine evacuation", correct: true },
+                { text: "Expectant management", correct: false },
+                { text: "Antibiotics only", correct: false },
+                { text: "Hormonal therapy", correct: false },
+                { text: "No treatment", correct: false },
+            ]
+        },
+        {
+            question: "Missed abortion is defined as:",
+            answers: [
+                { text: "Retained products without symptoms", correct: true },
+                { text: "Complete expulsion", correct: false },
+                { text: "Infected products", correct: false },
+                { text: "Ectopic pregnancy", correct: false },
+                { text: "Molar pregnancy", correct: false },
+            ]
+        },
+        {
+            question: "The classic triad of ectopic pregnancy includes:",
+            answers: [
+                { text: "Pain, bleeding, amenorrhea", correct: true },
+                { text: "Fever, chills, discharge", correct: false },
+                { text: "Nausea, vomiting, diarrhea", correct: false },
+                { text: "Headache, dizziness, fatigue", correct: false },
+                { text: "Cough, dyspnea, fever", correct: false },
+            ]
+        },
+        {
+            question: "Medical treatment for ectopic pregnancy is:",
+            answers: [
+                { text: "Methotrexate", correct: true },
+                { text: "Antibiotics", correct: false },
+                { text: "Aspirin", correct: false },
+                { text: "Iron supplements", correct: false },
+                { text: "Vitamin B6", correct: false },
+            ]
+        },
+        {
+            question: "Recurrent pregnancy loss is defined as:",
+            answers: [
+                { text: "≥3 consecutive losses", correct: true },
+                { text: "1 loss", correct: false },
+                { text: "2 losses", correct: false },
+                { text: "4 non-consecutive losses", correct: false },
+                { text: "No losses", correct: false },
+            ]
+        },
+        {
+            question: "In threatened abortion, the pregnancy is:",
+            answers: [
+                { text: "Potentially viable", correct: true },
+                { text: "Always non-viable", correct: false },
+                { text: "Ectopic", correct: false },
+                { text: "Molar", correct: false },
+                { text: "Infected", correct: false },
+            ]
+        },
+        {
+            question: "A woman with 8 weeks pregnancy presents with right lower quadrant pain and spotting. The first investigation should be:",
+            answers: [
+                { text: "Transvaginal ultrasound", correct: true },
+                { text: "Abdominal X-ray", correct: false },
+                { text: "MRI", correct: false },
+                { text: "Laparoscopy", correct: false },
+                { text: "Blood culture", correct: false },
+            ]
+        },
+        {
+            question: "Management of septic abortion includes:",
+            answers: [
+                { text: "IV antibiotics and evacuation", correct: true },
+                { text: "Observation only", correct: false },
+                { text: "Oral antibiotics", correct: false },
+                { text: "Hormonal treatment", correct: false },
+                { text: "No intervention", correct: false },
+            ]
+        },
+        {
+            question: "A patient with hyperemesis gravidarum may develop:",
+            answers: [
+                { text: "Electrolyte imbalances", correct: true },
+                { text: "Hypertension", correct: false },
+                { text: "Diabetes", correct: false },
+                { text: "Thyroid storm", correct: false },
+                { text: "Anemia", correct: false },
+            ]
+        },
+        {
+            question: "Risk factors for recurrent pregnancy loss include:",
+            answers: [
+                { text: "Antiphospholipid syndrome", correct: true },
+                { text: "Normal anatomy", correct: false },
+                { text: "No risk factors", correct: false },
+                { text: "Young age", correct: false },
+                { text: "Multiparity", correct: false },
+            ]
+        },
+        {
+            question: "Which condition classically presents with painful, dark red vaginal bleeding?",
+            answers: [
+                { text: "Placental abruption", correct: true },
+                { text: "Placenta praevia", correct: false },
+                { text: "Vasa praevia", correct: false },
+                { text: "Cervical polyp", correct: false },
+                { text: "Implantation bleeding", correct: false },
+            ]
+        },
+        {
+            question: "What is the hallmark clinical feature of placenta praevia?",
+            answers: [
+                { text: "Painless, bright red vaginal bleeding", correct: true },
+                { text: "Abdominal pain with tenderness", correct: false },
+                { text: "Fetal malpresentation", correct: false },
+                { text: "Maternal hypotension", correct: false },
+                { text: "Uterine hypertonicity", correct: false },
+            ]
+        },
+        {
+            question: "Which investigation is contraindicated in suspected placenta praevia?",
+            answers: [
+                { text: "Digital vaginal examination", correct: true },
+                { text: "Ultrasound scan", correct: false },
+                { text: "Speculum examination", correct: false },
+                { text: "Cardiotocography (CTG)", correct: false },
+                { text: "Complete blood count", correct: false },
+            ]
+        },
+        {
+            question: "What is the primary initial management step for any significant antepartum haemorrhage?",
+            answers: [
+                { text: "Assess and stabilize the mother's condition", correct: true },
+                { text: "Perform immediate cesarean section", correct: false },
+                { text: "Start oxytocin infusion", correct: false },
+                { text: "Administer antibiotics", correct: false },
+                { text: "Deliver the placenta", correct: false },
+            ]
+        },
+        {
+            question: "A patient at 34 weeks presents with sudden, severe abdominal pain, a tense and tender uterus, and dark vaginal bleeding. Fetal heart rate is tachycardic. What is the most likely diagnosis?",
+            answers: [
+                { text: "Placental abruption", correct: true },
+                { text: "Placenta praevia", correct: false },
+                { text: "Uterine rupture", correct: false },
+                { text: "Preterm labor", correct: false },
+                { text: "Fetal distress", correct: false },
+            ]
+        },
+        {
+            question: "In placental abruption, what maternal complication is most commonly associated with coagulopathy?",
+            answers: [
+                { text: "Disseminated intravascular coagulation (DIC)", correct: true },
+                { text: "HELLP syndrome", correct: false },
+                { text: "Amniotic fluid embolism", correct: false },
+                { text: "Thrombotic thrombocytopenic purpura", correct: false },
+                { text: "Idiopathic thrombocytopenia", correct: false },
+            ]
+        },
+        {
+            question: "What is the most reliable diagnostic tool for confirming placenta praevia?",
+            answers: [
+                { text: "Transabdominal or transvaginal ultrasound", correct: true },
+                { text: "Magnetic resonance imaging (MRI)", correct: false },
+                { text: "Clinical examination", correct: false },
+                { text: "Amniocentesis", correct: false },
+                { text: "X-ray", correct: false },
+            ]
+        },
+        {
+            question: "A patient with known placenta praevia at 32 weeks experiences a minor bleed. What is the immediate management?",
+            answers: [
+                { text: "Hospitalization for observation and corticosteroids", correct: true },
+                { text: "Emergency cesarean section", correct: false },
+                { text: "Induction of labor", correct: false },
+                { text: "Send home with rest", correct: false },
+                { text: "Administer tocolytics", correct: false },
+            ]
+        },
+        {
+            question: "A patient at 28 weeks with APH shows late decelerations on CTG. Ultrasound shows a retroplacental clot. What is the most appropriate management?",
+            answers: [
+                { text: "Emergency cesarean section", correct: true },
+                { text: "Expectant management with steroids", correct: false },
+                { text: "Induction of labor", correct: false },
+                { text: "Tocolytic therapy", correct: false },
+                { text: "Blood transfusion only", correct: false },
+            ]
+        },
+        {
+            question: "What is the primary indicator for delivery in a stable patient with placental abruption?",
+            answers: [
+                { text: "Fetal distress or maternal instability", correct: true },
+                { text: "Gestational age of 34 weeks", correct: false },
+                { text: "Maternal request", correct: false },
+                { text: "Presence of uterine tenderness", correct: false },
+                { text: "Vaginal bleeding >100 ml", correct: false },
+            ]
+        },
+        {
+            question: "A patient with APH has normal placenta location on ultrasound but shows fetal bradycardia. What should be suspected?",
+            answers: [
+                { text: "Vasa praevia with fetal hemorrhage", correct: true },
+                { text: "Placental abruption", correct: false },
+                { text: "Uterine rupture", correct: false },
+                { text: "Cord prolapse", correct: false },
+                { text: "Fetal heart anomaly", correct: false },
+            ]
+        },
+        {
+            question: "What is the most accurate method for diagnosing vasa praevia?",
+            answers: [
+                { text: "Color Doppler ultrasound", correct: true },
+                { text: "Amniocentesis", correct: false },
+                { text: "MRI", correct: false },
+                { text: "Fetal blood sampling", correct: false },
+                { text: "Clinical examination", correct: false },
+            ]
+        },
+        {
+            question: "Monochorionic diamniotic twins have:",
+            answers: [
+                { text: "One placenta, two amniotic sacs", correct: true },
+                { text: "One placenta, one sac", correct: false },
+                { text: "Two placentas, two sacs", correct: false },
+                { text: "Two placentas, one sac", correct: false },
+                { text: "No placenta", correct: false },
+            ]
+        },
+        {
+            question: "Conjoined twins are a complication of:",
+            answers: [
+                { text: "Incomplete division of monozygotic twins", correct: true },
+                { text: "Dizygotic twinning", correct: false },
+                { text: "Maternal infection", correct: false },
+                { text: "Genetic disorders", correct: false },
+                { text: "Hormonal treatment", correct: false },
+            ]
+        },
+        {
+            question: "The \"lambda sign\" on ultrasound indicates:",
+            answers: [
+                { text: "Dichorionic pregnancy", correct: true },
+                { text: "Monochorionic pregnancy", correct: false },
+                { text: "Triplet pregnancy", correct: false },
+                { text: "Fetal anomaly", correct: false },
+                { text: "Placental insufficiency", correct: false },
+            ]
+        },
+        {
+            question: "Maternal complications in multiple pregnancies include:",
+            answers: [
+                { text: "Gestational hypertension", correct: true },
+                { text: "Decreased nausea", correct: false },
+                { text: "Lower weight gain", correct: false },
+                { text: "Reduced anemia", correct: false },
+                { text: "Improved glucose tolerance", correct: false },
+            ]
+        },
+        {
+            question: "The risk of cerebral palsy is higher in multiples due to:",
+            answers: [
+                { text: "Preterm delivery and low birth weight", correct: true },
+                { text: "Genetic factors only", correct: false },
+                { text: "Maternal age", correct: false },
+                { text: "Infection", correct: false },
+                { text: "Nutritional factors", correct: false },
+            ]
+        },
+        {
+            question: "Optimal gestational age for delivery of dichorionic diamniotic twins is:",
+            answers: [
+                { text: "37-38 weeks", correct: true },
+                { text: "34-35 weeks", correct: false },
+                { text: "39-40 weeks", correct: false },
+                { text: "32-33 weeks", correct: false },
+                { text: "41-42 weeks", correct: false },
+            ]
+        },
+        {
+            question: "In TTTS, the donor twin may develop:",
+            answers: [
+                { text: "Oligohydramnios", correct: true },
+                { text: "Polyhydramnios", correct: false },
+                { text: "Hydrops", correct: false },
+                { text: "Hypertension", correct: false },
+                { text: "Diabetes", correct: false },
+            ]
+        },
+        {
+            question: "The \"stuck twin\" appearance is seen in:",
+            answers: [
+                { text: "Severe TTTS", correct: true },
+                { text: "Normal twin pregnancy", correct: false },
+                { text: "Dichorionic twins", correct: false },
+                { text: "Triplet pregnancy", correct: false },
+                { text: "Twin reversal arterial perfusion", correct: false },
+            ]
+        },
+        {
+            question: "The risk of postpartum hemorrhage is higher in multiples due to:",
+            answers: [
+                { text: "Uterine overdistension", correct: true },
+                { text: "Maternal anemia", correct: false },
+                { text: "Fetal anomalies", correct: false },
+                { text: "Infection", correct: false },
+                { text: "Hypertension", correct: false },
+            ]
+        },
+        {
+            question: "In triplet pregnancy, the recommended delivery route is usually:",
+            answers: [
+                { text: "Cesarean section", correct: true },
+                { text: "Vaginal delivery", correct: false },
+                { text: "Vacuum extraction", correct: false },
+                { text: "Forceps delivery", correct: false },
+                { text: "Depends on maternal age", correct: false },
+            ]
+        },
+        {
+            question: "Selective reduction in multiple pregnancies is considered to:",
+            answers: [
+                { text: "Reduce risks of extreme prematurity", correct: true },
+                { text: "Increase survival of all fetuses", correct: false },
+                { text: "Prevent genetic disorders", correct: false },
+                { text: "Treat maternal infection", correct: false },
+                { text: "Correct fetal anomalies", correct: false },
+            ]
+        },
+        {
+            question: "The leading cause of perinatal mortality in monochorionic twins is:",
+            answers: [
+                { text: "TTTS", correct: true },
+                { text: "Preterm birth", correct: false },
+                { text: "Congenital anomalies", correct: false },
+                { text: "Cord accidents", correct: false },
+                { text: "Maternal factors", correct: false },
+            ]
+        },
+        {
+            question: "Which type of anemia is most prevalent in pregnancy?",
+            answers: [
+                { text: "Iron deficiency anemia", correct: true },
+                { text: "Megaloblastic anemia", correct: false },
+                { text: "Sickle cell anemia", correct: false },
+                { text: "Aplastic anemia", correct: false },
+                { text: "Hemolytic anemia", correct: false },
+            ]
+        },
+        {
+            question: "What is the target HbA1c level for a diabetic woman planning pregnancy?",
+            answers: [
+                { text: "<6.5%", correct: true },
+                { text: "<7.0%", correct: false },
+                { text: "<8.0%", correct: false },
+                { text: "<9.0%", correct: false },
+                { text: "<10.0%", correct: false },
+            ]
+        },
+        {
+            question: "Which cardiac condition poses the highest mortality risk during pregnancy?",
+            answers: [
+                { text: "Pulmonary hypertension", correct: true },
+                { text: "Mitral stenosis", correct: false },
+                { text: "Atrial septal defect", correct: false },
+                { text: "Ventricular septal defect", correct: false },
+                { text: "Patent ductus arteriosus", correct: false },
+            ]
+        },
+        {
+            question: "What is the drug of choice for treating syphilis in pregnancy?",
+            answers: [
+                { text: "Penicillin G", correct: true },
+                { text: "Doxycycline", correct: false },
+                { text: "Azithromycin", correct: false },
+                { text: "Ceftriaxone", correct: false },
+                { text: "Erythromycin", correct: false },
+            ]
+        },
+        {
+            question: "A pregnant woman with pre-existing Type 1 Diabetes is at highest risk for which fetal complication in the third trimester?",
+            answers: [
+                { text: "Macrosomia", correct: true },
+                { text: "Neural tube defects", correct: false },
+                { text: "Congenital heart disease", correct: false },
+                { text: "Preterm labor", correct: false },
+                { text: "Oligohydramnios", correct: false },
+            ]
+        },
+        {
+            question: "What is the most common physiological thyroid disorder in pregnancy?",
+            answers: [
+                { text: "Gestational transient thyrotoxicosis", correct: true },
+                { text: "Graves' disease", correct: false },
+                { text: "Hashimoto's thyroiditis", correct: false },
+                { text: "Postpartum thyroiditis", correct: false },
+                { text: "Thyroid nodules", correct: false },
+            ]
+        },
+        {
+            question: "Which antiepileptic drug is considered most teratogenic?",
+            answers: [
+                { text: "Valproate", correct: true },
+                { text: "Lamotrigine", correct: false },
+                { text: "Levetiracetam", correct: false },
+                { text: "Carbamazepine", correct: false },
+                { text: "Phenytoin", correct: false },
+            ]
+        },
+        {
+            question: "What is the most sensitive indicator of renal function in pregnant women with hypertension?",
+            answers: [
+                { text: "Serum creatinine", correct: true },
+                { text: "Blood urea nitrogen", correct: false },
+                { text: "Urine protein", correct: false },
+                { text: "Glomerular filtration rate", correct: false },
+                { text: "Creatinine clearance", correct: false },
+            ]
+        },
+        {
+            question: "Which vaccination is absolutely contraindicated in pregnancy?",
+            answers: [
+                { text: "MMR (Measles, Mumps, Rubella)", correct: true },
+                { text: "Tdap (Tetanus, Diphtheria, Pertussis)", correct: false },
+                { text: "Influenza", correct: false },
+                { text: "Hepatitis B", correct: false },
+                { text: "Pneumococcal", correct: false },
+            ]
+        },
+        {
+            question: "A patient at 28 weeks gestation with a history of epilepsy, well-controlled on lamotrigine, seeks advice. What is the most appropriate management of her medication?",
+            answers: [
+                { text: "Continue lamotrigine and monitor drug levels; advise folic acid.", correct: true },
+                { text: "Stop lamotrigine immediately due to fetal risks.", correct: false },
+                { text: "Switch to valproate for better control.", correct: false },
+                { text: "Reduce the dose by half.", correct: false },
+                { text: "Advise hospitalization for monitoring.", correct: false },
+            ]
+        },
+        {
+            question: "A woman with myasthenia gravis plans pregnancy. What is the safest medication to continue?",
+            answers: [
+                { text: "Pyridostigmine", correct: true },
+                { text: "Azathioprine", correct: false },
+                { text: "Mycophenolate", correct: false },
+                { text: "Methotrexate", correct: false },
+                { text: "Cyclophosphamide", correct: false },
+            ]
+        },
+        {
+            question: "A patient with inflammatory bowel disease on infliximab becomes pregnant. What is recommended?",
+            answers: [
+                { text: "Continue infliximab throughout pregnancy", correct: true },
+                { text: "Stop immediately", correct: false },
+                { text: "Switch to steroids", correct: false },
+                { text: "Use only during first trimester", correct: false },
+                { text: "Avoid all biologics", correct: false },
+            ]
+        },
+        {
+            question: "A woman with cystic fibrosis is pregnant. What is the most important monitoring parameter?",
+            answers: [
+                { text: "Pulmonary function tests", correct: true },
+                { text: "Liver enzymes", correct: false },
+                { text: "Amniotic fluid levels", correct: false },
+                { text: "Fetal growth", correct: false },
+                { text: "Maternal weight gain", correct: false },
+            ]
+        },
+        {
+            question: "A patient with thrombophilia and previous pregnancy loss presents. What is the recommended prophylaxis?",
+            answers: [
+                { text: "Low molecular weight heparin", correct: true },
+                { text: "Aspirin only", correct: false },
+                { text: "Warfarin", correct: false },
+                { text: "No treatment", correct: false },
+                { text: "Steroids", correct: false },
+            ]
+        },
+        {
+            question: "A woman with Marfan syndrome is pregnant. What is the greatest maternal risk?",
+            answers: [
+                { text: "Aortic dissection", correct: true },
+                { text: "Uterine rupture", correct: false },
+                { text: "Preterm labor", correct: false },
+                { text: "Preeclampsia", correct: false },
+                { text: "Gestational diabetes", correct: false },
+            ]
+        },
+        {
+            question: "A patient with active tuberculosis is pregnant. What is the recommended treatment?",
+            answers: [
+                { text: "Continue standard four-drug regimen", correct: true },
+                { text: "Stop all drugs", correct: false },
+                { text: "Use only isoniazid", correct: false },
+                { text: "Delay treatment until after delivery", correct: false },
+                { text: "Use only second-line drugs", correct: false },
+            ]
+        },
+        {
+            question: "The mechanism of labor includes all EXCEPT:",
+            answers: [
+                { text: "Engagement", correct: true },
+                { text: "Descent", correct: false },
+                { text: "Flexion", correct: false },
+                { text: "Internal rotation", correct: false },
+                { text: "Cervical effacement", correct: false },
+            ]
+        },
+        {
+            question: "Cervical effacement refers to:",
+            answers: [
+                { text: "Thinning of the cervix", correct: true },
+                { text: "Dilation of the cervix", correct: false },
+                { text: "Ripening of the cervix", correct: false },
+                { text: "Softening of the cervix", correct: false },
+                { text: "Shortening of the cervix", correct: false },
+            ]
+        },
+        {
+            question: "The duration of the first stage in primigravida is typically:",
+            answers: [
+                { text: "8-12 hours", correct: true },
+                { text: "2-4 hours", correct: false },
+                { text: "16-20 hours", correct: false },
+                { text: "24 hours", correct: false },
+                { text: "30 hours", correct: false },
+            ]
+        },
+        {
+            question: "Rupture of membranes should be confirmed by:",
+            answers: [
+                { text: "Sterile speculum examination", correct: true },
+                { text: "Ultrasound", correct: false },
+                { text: "Nitrazine test", correct: false },
+                { text: "Amniotic fluid volume", correct: false },
+                { text: "Fetal monitoring", correct: false },
+            ]
+        },
+        {
+            question: "The cardinal movements of labor include:",
+            answers: [
+                { text: "Internal rotation", correct: true },
+                { text: "Cervical dilation", correct: false },
+                { text: "Membrane rupture", correct: false },
+                { text: "Placental separation", correct: false },
+                { text: "Uterine contraction", correct: false },
+            ]
+        },
+        {
+            question: "Fetal heart rate should be monitored every _____ in active labor:",
+            answers: [
+                { text: "15-30 minutes", correct: true },
+                { text: "5 minutes", correct: false },
+                { text: "1 hour", correct: false },
+                { text: "2 hours", correct: false },
+                { text: "10 minutes", correct: false },
+            ]
+        },
+        {
+            question: "The normal duration of the second stage in primigravida is:",
+            answers: [
+                { text: "Up to 2 hours", correct: true },
+                { text: "30 minutes", correct: false },
+                { text: "3 hours", correct: false },
+                { text: "4 hours", correct: false },
+                { text: "1 hour", correct: false },
+            ]
+        },
+        {
+            question: "The third stage of labor typically lasts:",
+            answers: [
+                { text: "5-15 minutes", correct: true },
+                { text: "30-60 minutes", correct: false },
+                { text: "2-3 hours", correct: false },
+                { text: "1-2 hours", correct: false },
+                { text: "20-30 minutes", correct: false },
+            ]
+        },
+        {
+            question: "In a normal labor pattern, descent accelerates during:",
+            answers: [
+                { text: "Second stage", correct: true },
+                { text: "First stage latent phase", correct: false },
+                { text: "First stage active phase", correct: false },
+                { text: "Third stage", correct: false },
+                { text: "Fourth stage", correct: false },
+            ]
+        },
+        {
+            question: "Fetal scalp pH sampling is used to evaluate:",
+            answers: [
+                { text: "Fetal acidosis", correct: true },
+                { text: "Maternal infection", correct: false },
+                { text: "Placental location", correct: false },
+                { text: "Amniotic fluid volume", correct: false },
+                { text: "Uterine contractions", correct: false },
+            ]
+        },
+        {
+            question: "The duration of the third stage is prolonged if it exceeds:",
+            answers: [
+                { text: "30 minutes", correct: true },
+                { text: "15 minutes", correct: false },
+                { text: "60 minutes", correct: false },
+                { text: "45 minutes", correct: false },
+                { text: "20 minutes", correct: false },
+            ]
+        },
+        {
+            question: "Uterine inversion is a complication of:",
+            answers: [
+                { text: "Third stage of labor", correct: true },
+                { text: "First stage of labor", correct: false },
+                { text: "Second stage of labor", correct: false },
+                { text: "Pre-labor", correct: false },
+                { text: "Postpartum period", correct: false },
+            ]
+        },
+        {
+            question: "What is the definition of prolonged second stage in a nulliparous woman with epidural?",
+            answers: [
+                { text: "3 hours", correct: true },
+                { text: "2 hours", correct: false },
+                { text: "4 hours", correct: false },
+                { text: "1 hour", correct: false },
+                { text: "5 hours", correct: false },
+            ]
+        },
+        {
+            question: "Which fetal position is most associated with abnormal labour progression?",
+            answers: [
+                { text: "Occipitoposterior position", correct: true },
+                { text: "Occipitoanterior position", correct: false },
+                { text: "Left occipitotransverse", correct: false },
+                { text: "Right occipitotransverse", correct: false },
+                { text: "Sacral position", correct: false },
+            ]
+        },
+        {
+            question: "What is the normal rate of cervical dilatation in the active phase of labour for nulliparous women?",
+            answers: [
+                { text: "≥1 cm/hour", correct: true },
+                { text: "≥0.5 cm/hour", correct: false },
+                { text: "≥2 cm/hour", correct: false },
+                { text: "≥1.5 cm/hour", correct: false },
+                { text: "≥0.3 cm/hour", correct: false },
+            ]
+        },
+        {
+            question: "What is the primary purpose of using a partograph in labour management?",
+            answers: [
+                { text: "To detect abnormal labour progression early", correct: true },
+                { text: "To measure fetal weight", correct: false },
+                { text: "To determine fetal sex", correct: false },
+                { text: "To assess maternal blood pressure", correct: false },
+                { text: "To monitor maternal temperature only", correct: false },
+            ]
+        },
+        {
+            question: "A partograph shows a cervicograph line crossing the alert line. What does this signify?",
+            answers: [
+                { text: "Slow progress of labour requiring evaluation", correct: true },
+                { text: "Normal progress of labour", correct: false },
+                { text: "Fetal distress", correct: false },
+                { text: "Maternal infection", correct: false },
+                { text: "Need for immediate cesarean section", correct: false },
+            ]
+        },
+        {
+            question: "What is the most appropriate first intervention for inadequate uterine contractions in the active phase?",
+            answers: [
+                { text: "Amniotomy (if membranes intact)", correct: true },
+                { text: "Immediate cesarean section", correct: false },
+                { text: "Forceps delivery", correct: false },
+                { text: "Vacuum extraction", correct: false },
+                { text: "Administering oxytocin without assessment", correct: false },
+            ]
+        },
+        {
+            question: "Which parameter is NOT part of the Bishop score for cervical ripening?",
+            answers: [
+                { text: "Maternal age", correct: true },
+                { text: "Cervical dilatation", correct: false },
+                { text: "Cervical effacement", correct: false },
+                { text: "Station of presenting part", correct: false },
+                { text: "Cervical consistency", correct: false },
+            ]
+        },
+        {
+            question: "What is the most common complication of oxytocin augmentation?",
+            answers: [
+                { text: "Uterine hyperstimulation", correct: true },
+                { text: "Maternal hypertension", correct: false },
+                { text: "Fetal macrosomia", correct: false },
+                { text: "Placental abruption", correct: false },
+                { text: "Umbilical cord prolapse", correct: false },
+            ]
+        },
+        {
+            question: "A nulliparous woman at 8 cm dilatation has no progress for 3 hours despite adequate contractions. Fetal head is at station 0, occipitotransverse position. What is the most likely cause?",
+            answers: [
+                { text: "Deep transverse arrest", correct: true },
+                { text: "Cephalopelvic disproportion", correct: false },
+                { text: "Uterine rupture", correct: false },
+                { text: "Placental abruption", correct: false },
+                { text: "Maternal exhaustion", correct: false },
+            ]
+        },
+        {
+            question: "During oxytocin augmentation, the FHR shows late decelerations. What is the immediate action?",
+            answers: [
+                { text: "Discontinue oxytocin and turn patient on left side", correct: true },
+                { text: "Increase oxytocin dose", correct: false },
+                { text: "Continue oxytocin with closer monitoring", correct: false },
+                { text: "Administer oxygen only", correct: false },
+                { text: "Prepare for immediate forceps delivery", correct: false },
+            ]
+        },
+        {
+            question: "A patient with prolonged labour develops fever and foul-smelling amniotic fluid. What is the most likely diagnosis and management?",
+            answers: [
+                { text: "Chorioamnionitis; administer antibiotics and expedite delivery", correct: true },
+                { text: "Urinary tract infection; give oral antibiotics", correct: false },
+                { text: "Pneumonia; start antiviral therapy", correct: false },
+                { text: "Endometritis; continue labour without intervention", correct: false },
+                { text: "Sepsis; induce labour immediately", correct: false },
+            ]
+        },
+        {
+            question: "What is the maximum recommended dose of oxytocin for labour augmentation?",
+            answers: [
+                { text: "20 mU/min", correct: true },
+                { text: "10 mU/min", correct: false },
+                { text: "30 mU/min", correct: false },
+                { text: "40 mU/min", correct: false },
+                { text: "50 mU/min", correct: false },
+            ]
+        },
+        {
+            question: "A key prerequisite for forceps application is:",
+            answers: [
+                { text: "Engaged fetal head", correct: true },
+                { text: "High fetal station", correct: false },
+                { text: "Undilated cervix", correct: false },
+                { text: "Maternal hypertension", correct: false },
+                { text: "Fetal anomalies", correct: false },
+            ]
+        },
+        {
+            question: "The T-shaped incision in cesarean section is used for:",
+            answers: [
+                { text: "Difficult fetal extraction", correct: true },
+                { text: "Standard procedure", correct: false },
+                { text: "Premature babies", correct: false },
+                { text: "Multiple gestations", correct: false },
+                { text: "Maternal obesity", correct: false },
+            ]
+        },
+        {
+            question: "Vacuum extraction is contraindicated in:",
+            answers: [
+                { text: "Gestational age <34 weeks", correct: true },
+                { text: "Term pregnancy", correct: false },
+                { text: "Post-term pregnancy", correct: false },
+                { text: "Normal labor", correct: false },
+                { text: "Maternal diabetes", correct: false },
+            ]
+        },
+        {
+            question: "The most serious complication of forceps delivery is:",
+            answers: [
+                { text: "Fetal intracranial hemorrhage", correct: true },
+                { text: "Maternal perineal tear", correct: false },
+                { text: "Urinary retention", correct: false },
+                { text: "Infection", correct: false },
+                { text: "Headache", correct: false },
+            ]
+        },
+        {
+            question: "The \"station\" for safe operative delivery should be at least:",
+            answers: [
+                { text: "2", correct: true },
+                { text: "0", correct: false },
+                { text: "-1", correct: false },
+                { text: "-2", correct: false },
+                { text: "-3", correct: false },
+            ]
+        },
+        {
+            question: "The \"pop-off\" phenomenon in vacuum extraction may indicate:",
+            answers: [
+                { text: "Cup detachment due to poor placement", correct: true },
+                { text: "Successful delivery", correct: false },
+                { text: "Fetal distress", correct: false },
+                { text: "Maternal exhaustion", correct: false },
+                { text: "Cervical tear", correct: false },
+            ]
+        },
+        {
+            question: "The classical cesarean section incision is:",
+            answers: [
+                { text: "Vertical uterine incision", correct: true },
+                { text: "Low transverse incision", correct: false },
+                { text: "T-shaped incision", correct: false },
+                { text: "J-shaped incision", correct: false },
+                { text: "Inverted T incision", correct: false },
+            ]
+        },
+        {
+            question: "Indications for emergency cesarean section include:",
+            answers: [
+                { text: "Placental abruption", correct: true },
+                { text: "Mild preeclampsia", correct: false },
+                { text: "Post-term pregnancy", correct: false },
+                { text: "Slow progress in first stage", correct: false },
+                { text: "Maternal fatigue", correct: false },
+            ]
+        },
+        {
+            question: "The most common complication of cesarean section is:",
+            answers: [
+                { text: "Infection", correct: true },
+                { text: "Hemorrhage", correct: false },
+                { text: "Bladder injury", correct: false },
+                { text: "Thrombosis", correct: false },
+                { text: "Anesthesia complications", correct: false },
+            ]
+        },
+        {
+            question: "The maximum number of vacuum pop-offs allowed is:",
+            answers: [
+                { text: "3", correct: true },
+                { text: "1", correct: false },
+                { text: "5", correct: false },
+                { text: "2", correct: false },
+                { text: "4", correct: false },
+            ]
+        },
+        {
+            question: "For cesarean section in obese patients, the preferred incision is:",
+            answers: [
+                { text: "Supraumbilical vertical incision", correct: true },
+                { text: "Pfannenstiel incision", correct: false },
+                { text: "Joel-Cohen incision", correct: false },
+                { text: "Maylard incision", correct: false },
+                { text: "Cherney incision", correct: false },
+            ]
+        },
+        {
+            question: "The primary advantage of vacuum over forceps is:",
+            answers: [
+                { text: "Less maternal trauma", correct: true },
+                { text: "Faster delivery", correct: false },
+                { text: "Better for rotations", correct: false },
+                { text: "Higher success rate", correct: false },
+                { text: "Less fetal risk", correct: false },
+            ]
+        },
+        {
+            question: "The primary indication for a prophylactic forceps delivery is:",
+            answers: [
+                { text: "To protect the fetal head in preterm delivery", correct: true },
+                { text: "Maternal exhaustion", correct: false },
+                { text: "Fetal macrosomia", correct: false },
+                { text: "Prolonged second stage", correct: false },
+                { text: "Maternal request", correct: false },
+            ]
+        },
+        {
+            question: "In vacuum extraction, the recommended maximum duration of traction is:",
+            answers: [
+                { text: "15-20 minutes", correct: true },
+                { text: "5-10 minutes", correct: false },
+                { text: "25-30 minutes", correct: false },
+                { text: "30-40 minutes", correct: false },
+                { text: "40-50 minutes", correct: false },
+            ]
+        },
+        {
+            question: "The most serious maternal complication of cesarean section is:",
+            answers: [
+                { text: "Uterine rupture in subsequent pregnancies", correct: true },
+                { text: "Wound infection", correct: false },
+                { text: "Urinary tract infection", correct: false },
+                { text: "Hemorrhage", correct: false },
+                { text: "Anesthesia complications", correct: false },
+            ]
+        },
+        {
+            question: "For safe outlet forceps delivery, the fetal station must be at least:",
+            answers: [
+                { text: "+2 cm", correct: true },
+                { text: "0 station", correct: false },
+                { text: "-1 cm", correct: false },
+                { text: "-2 cm", correct: false },
+                { text: "+1 cm", correct: false },
+            ]
+        },
+        {
+            question: "What is the classic sign of placental separation?",
+            answers: [
+                { text: "A gush of blood and lengthening of umbilical cord", correct: true },
+                { text: "Immediate pain relief", correct: false },
+                { text: "Fetal movement", correct: false },
+                { text: "Maternal hypertension", correct: false },
+                { text: "Uterine relaxation", correct: false },
+            ]
+        },
+        {
+            question: "Which condition presents with a \"hourglass\" contraction of the uterus?",
+            answers: [
+                { text: "Uterine inversion", correct: true },
+                { text: "Uterine atony", correct: false },
+                { text: "Retained placenta", correct: false },
+                { text: "Placenta accreta", correct: false },
+                { text: "Uterine rupture", correct: false },
+            ]
+        },
+        {
+            question: "A patient has delivered the baby, but the placenta has not delivered after 30 minutes with active management. There is no bleeding. What is the initial diagnosis?",
+            answers: [
+                { text: "Retained placenta", correct: true },
+                { text: "Placenta accreta", correct: false },
+                { text: "Uterine atony", correct: false },
+                { text: "Normal variant", correct: false },
+                { text: "Uterine inversion", correct: false },
+            ]
+        },
+        {
+            question: "What is the first-line uterotonic for managing uterine atony?",
+            answers: [
+                { text: "Intravenous oxytocin", correct: true },
+                { text: "Intramuscular ergometrine", correct: false },
+                { text: "Rectal misoprostol", correct: false },
+                { text: "Intramuscular carboprost", correct: false },
+                { text: "Oral misoprostol", correct: false },
+            ]
+        },
+        {
+            question: "During manual removal of placenta, the placenta feels firmly adherent. What is the most appropriate immediate action?",
+            answers: [
+                { text: "Stop attempted removal and prepare for hysterectomy", correct: true },
+                { text: "Continue with more force", correct: false },
+                { text: "Administer oxytocin", correct: false },
+                { text: "Perform uterine massage", correct: false },
+                { text: "Order ultrasound", correct: false },
+            ]
+        },
+        {
+            question: "A patient with postpartum hemorrhage fails to respond to uterotonics and bimanual compression. What is the next step?",
+            answers: [
+                { text: "Intrauterine balloon tamponade", correct: true },
+                { text: "Emergency hysterectomy", correct: false },
+                { text: "Arterial embolization", correct: false },
+                { text: "Recombinant factor VII", correct: false },
+                { text: "Continue oxytocin infusion", correct: false },
+            ]
+        },
+        {
+            question: "What is the definitive management for placenta percreta with bladder invasion?",
+            answers: [
+                { text: "Planned cesarean hysterectomy", correct: true },
+                { text: "Manual removal of placenta", correct: false },
+                { text: "Uterine artery embolization", correct: false },
+                { text: "Methotrexate therapy", correct: false },
+                { text: "Conservative management", correct: false },
+            ]
+        },
+        {
+            question: "A patient develops shock with a visible fundus at the cervical os. What is the immediate management?",
+            answers: [
+                { text: "Manual repositioning of the uterus", correct: true },
+                { text: "Administer oxytocin", correct: false },
+                { text: "Perform laparotomy", correct: false },
+                { text: "Start blood transfusion", correct: false },
+                { text: "Order ultrasound", correct: false },
+            ]
+        },
+        {
+            question: "Uterine inversion is often caused by:",
+            answers: [
+                { text: "Excessive traction on the cord", correct: true },
+                { text: "Fundal pressure", correct: false },
+                { text: "Maternal pushing", correct: false },
+                { text: "Short cord", correct: false },
+                { text: "Placenta accreta", correct: false },
+            ]
+        },
+        {
+            question: "The first-line drug for managing uterine atony is:",
+            answers: [
+                { text: "Oxytocin", correct: true },
+                { text: "Misoprostol", correct: false },
+                { text: "Carboprost", correct: false },
+                { text: "Methylergometrine", correct: false },
+                { text: "Tranexamic acid", correct: false },
+            ]
+        },
+        {
+            question: "The B-Lynch suture is used to manage:",
+            answers: [
+                { text: "Uterine atony unresponsive to drugs", correct: true },
+                { text: "Cervical lacerations", correct: false },
+                { text: "Vaginal hematomas", correct: false },
+                { text: "Retained placenta", correct: false },
+                { text: "Uterine inversion", correct: false },
+            ]
+        },
+        {
+            question: "Amniotic fluid embolism typically presents with:",
+            answers: [
+                { text: "Sudden dyspnea and hypotension", correct: true },
+                { text: "Gradual bleeding", correct: false },
+                { text: "Fever and chills", correct: false },
+                { text: "Abdominal pain", correct: false },
+                { text: "Hypertension", correct: false },
+            ]
+        },
+        {
+            question: "In uterine inversion, the first step of management is:",
+            answers: [
+                { text: "Manual repositioning", correct: true },
+                { text: "Oxytocin infusion", correct: false },
+                { text: "Emergency hysterectomy", correct: false },
+                { text: "Fluid resuscitation", correct: false },
+                { text: "Antibiotic therapy", correct: false },
+            ]
+        },
+        {
+            question: "Risk factors for placenta accreta include:",
+            answers: [
+                { text: "Previous cesarean section", correct: true },
+                { text: "Primiparity", correct: false },
+                { text: "Normal placenta", correct: false },
+                { text: "Maternal age <20", correct: false },
+                { text: "No prior surgery", correct: false },
+            ]
+        },
+        {
+            question: "Tranexamic acid is used in PPH to:",
+            answers: [
+                { text: "Inhibit fibrinolysis", correct: true },
+                { text: "Stimulate contractions", correct: false },
+                { text: "Replace blood loss", correct: false },
+                { text: "Treat infection", correct: false },
+                { text: "Reduce pain", correct: false },
+            ]
+        },
+        {
+            question: "The \"tissue\" component of the 4 T's refers to:",
+            answers: [
+                { text: "Retained placental fragments", correct: true },
+                { text: "Uterine atony", correct: false },
+                { text: "Genital tract trauma", correct: false },
+                { text: "Coagulopathy", correct: false },
+                { text: "Uterine inversion", correct: false },
+            ]
+        },
+        {
+            question: "What is the normal heart rate for a healthy term newborn?",
+            answers: [
+                { text: "120-160 beats per minute", correct: true },
+                { text: "80-100 beats per minute", correct: false },
+                { text: "160-180 beats per minute", correct: false },
+                { text: "100-120 beats per minute", correct: false },
+                { text: "180-200 beats per minute", correct: false },
+            ]
+        },
+        {
+            question: "What is the first step in neonatal resuscitation?",
+            answers: [
+                { text: "Provide warmth and dry the baby", correct: true },
+                { text: "Administer oxygen", correct: false },
+                { text: "Start chest compressions", correct: false },
+                { text: "Intubate the newborn", correct: false },
+                { text: "Suction the mouth", correct: false },
+            ]
+        },
+        {
+            question: "A newborn has central cyanosis that does not improve with oxygen. What is the most likely category of cause?",
+            answers: [
+                { text: "Congenital heart disease", correct: true },
+                { text: "Respiratory distress syndrome", correct: false },
+                { text: "Pneumonia", correct: false },
+                { text: "Cold stress", correct: false },
+                { text: "Methemoglobinemia", correct: false },
+            ]
+        },
+        {
+            question: "What is the most common cause of respiratory distress in late preterm infants?",
+            answers: [
+                { text: "Transient tachypnea of the newborn (TTN)", correct: true },
+                { text: "Respiratory distress syndrome (RDS)", correct: false },
+                { text: "Meconium aspiration syndrome", correct: false },
+                { text: "Pneumonia", correct: false },
+                { text: "Congenital diaphragmatic hernia", correct: false },
+            ]
+        },
+        {
+            question: "A newborn of a diabetic mother develops jitteriness and hypoglycemia. What is the most appropriate initial treatment?",
+            answers: [
+                { text: "Early feeding or IV dextrose", correct: true },
+                { text: "Administer glucagon", correct: false },
+                { text: "Start phenobarbital", correct: false },
+                { text: "Give calcium gluconate", correct: false },
+                { text: "Monitor without treatment", correct: false },
+            ]
+        },
+        {
+            question: "A newborn presents with bilious vomiting and abdominal distension. What is the most urgent investigation?",
+            answers: [
+                { text: "Abdominal X-ray", correct: true },
+                { text: "Upper GI series", correct: false },
+                { text: "Abdominal ultrasound", correct: false },
+                { text: "Barium enema", correct: false },
+                { text: "CT scan", correct: false },
+            ]
+        },
+        {
+            question: "A newborn develops seizures at 24 hours of life. What is the most likely metabolic cause?",
+            answers: [
+                { text: "Hypoglycemia", correct: true },
+                { text: "Hypocalcemia", correct: false },
+                { text: "Hyponatremia", correct: false },
+                { text: "Hypomagnesemia", correct: false },
+                { text: "Hypernatremia", correct: false },
+            ]
+        },
+        {
+            question: "What is the first-line treatment for neonatal abstinence syndrome?",
+            answers: [
+                { text: "Non-pharmacological care (swaddling, quiet environment)", correct: true },
+                { text: "Morphine therapy", correct: false },
+                { text: "Phenobarbital", correct: false },
+                { text: "Methadone", correct: false },
+                { text: "Clonidine", correct: false },
+            ]
+        },
+        {
+            question: "The most common cause of postpartum fever is:",
+            answers: [
+                { text: "Endometritis", correct: true },
+                { text: "Urinary tract infection", correct: false },
+                { text: "Mastitis", correct: false },
+                { text: "Wound infection", correct: false },
+                { text: "Thrombophlebitis", correct: false },
+            ]
+        },
+        {
+            question: "Postpartum \"blues\" typically occur:",
+            answers: [
+                { text: "Within first week after delivery", correct: true },
+                { text: "After 1 month", correct: false },
+                { text: "During pregnancy", correct: false },
+                { text: "At 6 months", correct: false },
+                { text: "After weaning", correct: false },
+            ]
+        },
+        {
+            question: "Lochia serosa usually appears:",
+            answers: [
+                { text: "Days 3-10 postpartum", correct: true },
+                { text: "First 2 days", correct: false },
+                { text: "After 2 weeks", correct: false },
+                { text: "After 1 month", correct: false },
+                { text: "During first hour", correct: false },
+            ]
+        },
+        {
+            question: "Risk factors for postpartum endometritis include:",
+            answers: [
+                { text: "Prolonged rupture of membranes", correct: true },
+                { text: "Normal delivery", correct: false },
+                { text: "Primiparity", correct: false },
+                { text: "Maternal age <20", correct: false },
+                { text: "No risk factors", correct: false },
+            ]
+        },
+        {
+            question: "Sheehan's syndrome is caused by:",
+            answers: [
+                { text: "Postpartum pituitary necrosis", correct: true },
+                { text: "Thyroid dysfunction", correct: false },
+                { text: "Adrenal insufficiency", correct: false },
+                { text: "Ovarian failure", correct: false },
+                { text: "Diabetes", correct: false },
+            ]
+        },
+        {
+            question: "A woman with unilateral leg swelling and pain may have:",
+            answers: [
+                { text: "Deep vein thrombosis", correct: true },
+                { text: "Normal postpartum edema", correct: false },
+                { text: "Superficial thrombophlebitis", correct: false },
+                { text: "Cellulitis", correct: false },
+                { text: "Arthritis", correct: false },
+            ]
+        },
+        {
+            question: "Risk factors for postpartum psychosis include:",
+            answers: [
+                { text: "Previous psychiatric history", correct: true },
+                { text: "Normal pregnancy", correct: false },
+                { text: "Multiparity", correct: false },
+                { text: "Young age", correct: false },
+                { text: "No risk factors", correct: false },
+            ]
+        },
+        {
+            question: "Lochia alba consists mainly of:",
+            answers: [
+                { text: "Leukocytes and debris", correct: true },
+                { text: "Fresh blood", correct: false },
+                { text: "Serous fluid", correct: false },
+                { text: "Mucus", correct: false },
+                { text: "Pus", correct: false },
+            ]
+        },
+        {
+            question: "A patient presents with sudden, severe abdominal pain and vaginal bleeding at 34 weeks. The uterus is tense and tender. What is the most likely diagnosis?",
+            answers: [
+                { text: "Placental abruption", correct: true },
+                { text: "Placenta previa", correct: false },
+                { text: "Uterine rupture", correct: false },
+                { text: "Preterm labor", correct: false },
+                { text: "Appendicitis", correct: false },
+            ]
+        },
+        {
+            question: "A pregnant woman at 28 weeks presents with itching, most severe on palms and soles, with no rash. Liver function tests are elevated. What is the most likely diagnosis?",
+            answers: [
+                { text: "Obstetric Cholestasis", correct: true },
+                { text: "Atopic Eruption of Pregnancy", correct: false },
+                { text: "Pemphigoid Gestationis", correct: false },
+                { text: "Pruritic Urticarial Papules of Pregnancy (PUPPP)", correct: false },
+                { text: "Normal pregnancy variant", correct: false },
+            ]
+        },
+        {
+            question: "A patient at 36 weeks with known placenta previa experiences painless bright red bleeding. What is the immediate management?",
+            answers: [
+                { text: "Hospitalization for observation and preparation for cesarean section", correct: true },
+                { text: "Induction of labor", correct: false },
+                { text: "Emergency cesarean section regardless of circumstances", correct: false },
+                { text: "Administer tocolytics", correct: false },
+                { text: "Send home with advice for rest", correct: false },
+            ]
+        },
+        {
+            question: "A pregnant woman at 30 weeks presents with reduced fetal movements. CTG shows reduced variability and decelerations. What is the next step?",
+            answers: [
+                { text: "Emergency delivery", correct: true },
+                { text: "Biophysical profile", correct: false },
+                { text: "Repeat CTG in 24 hours", correct: false },
+                { text: "Administer steroids", correct: false },
+                { text: "Reassurance and discharge", correct: false },
+            ]
+        },
+        {
+            question: "A patient with twin pregnancy at 34 weeks presents with sudden shortness of breath and hypotension. What is the most likely diagnosis?",
+            answers: [
+                { text: "Amniotic fluid embolism", correct: true },
+                { text: "Pulmonary embolism", correct: false },
+                { text: "Peripartum cardiomyopathy", correct: false },
+                { text: "Pneumonia", correct: false },
+                { text: "Asthma exacerbation", correct: false },
+            ]
+        },
+        {
+            question: "A patient with previous cesarean section presents in labor with severe abdominal pain and fetal bradycardia. What is the most likely diagnosis and management?",
+            answers: [
+                { text: "Uterine rupture; emergency laparotomy", correct: true },
+                { text: "Placental abruption; immediate delivery", correct: false },
+                { text: "Cord prolapse; emergent cesarean section", correct: false },
+                { text: "Fetal distress; oxygen administration", correct: false },
+                { text: "Normal labor; continue observation", correct: false },
+            ]
+        },
+        {
+            question: "A patient at 38 weeks with gestational diabetes has an estimated fetal weight of 4500g. What is the most appropriate management?",
+            answers: [
+                { text: "Elective cesarean section", correct: true },
+                { text: "Induction of labor", correct: false },
+                { text: "Await spontaneous labor", correct: false },
+                { text: "Schedule at 40 weeks", correct: false },
+                { text: "Vaginal delivery with operative assistance", correct: false },
+            ]
+        },
+        {
+            question: "A patient presents with postpartum hemorrhage unresponsive to uterotonics. Examination reveals vaginal wall hematoma. What is the next step?",
+            answers: [
+                { text: "Evacuate hematoma and achieve hemostasis", correct: true },
+                { text: "Administer additional uterotonics", correct: false },
+                { text: "Perform hysterectomy", correct: false },
+                { text: "uterine artery embolization", correct: false },
+                { text: "Pack the vagina", correct: false },
+            ]
+        },
+        ];
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let isExamMode = false;
+        let isDarkMode = false;
+        let isAnswerMode = false;
+        let isQuestionShuffleMode = false; // NEW: Question shuffle mode for non-exam
+        let isQuestionShuffleEnabled = false; // NEW: Question shuffle for exam mode
+        let timerInterval = null;
+        let timerActive = false;
+        let timerExpired = false;
+        let totalQuestions = questions.length;
+        let selectedQuestionCount = questions.length;
+        let examGridExpanded = true;
+        let originalQuestionOrder = []; // NEW: Store original question order
+        let shuffledQuestionOrder = []; // NEW: Store shuffled question order
+        let currentQuestionOrder = []; // NEW: Current active question order
+
+        // NEW: Shuffle array function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // NEW: Shuffle options for a question
+        function shuffleQuestionOptions(question) {
+            const shuffledAnswers = shuffleArray(question.answers);
+            return {
+                ...question,
+                answers: shuffledAnswers
+            };
+        }
+
+        // Initialize quiz
+        function initializeQuiz() {
+            // Initialize question orders
+            originalQuestionOrder = Array.from({length: questions.length}, (_, i) => i);
+            shuffledQuestionOrder = shuffleArray(originalQuestionOrder);
+            currentQuestionOrder = [...originalQuestionOrder];
+            
+            userAnswers = new Array(questions.length).fill(null);
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Load current question with option shuffling
+        function loadQuestion() {
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const originalQuestion = questions[questionIndex];
+            
+            // NEW: Always shuffle options when loading a question
+            const question = shuffleQuestionOptions(originalQuestion);
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1}`;
+            document.getElementById('questionCounter').textContent = `${currentQuestionIndex + 1} / ${selectedQuestionCount}`;
+            document.getElementById('questionText').textContent = question.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            question.answers.forEach((answer, index) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'answer-option';
+                answerDiv.onclick = () => selectAnswer(index, answer.correct);
+
+                const optionLabel = document.createElement('div');
+                optionLabel.className = 'option-label';
+                optionLabel.textContent = String.fromCharCode(65 + index); // A, B, C, D
+
+                const optionText = document.createElement('div');
+                optionText.className = 'option-text';
+                optionText.textContent = answer.text;
+
+                answerDiv.appendChild(optionLabel);
+                answerDiv.appendChild(optionText);
+                answersContainer.appendChild(answerDiv);
+
+                // Restore previous selection
+                if (userAnswers[questionIndex] !== null && userAnswers[questionIndex].selectedIndex === index) {
+                    answerDiv.classList.add('selected');
+                }
+
+                // Apply answer mode styling if active and not in exam mode
+                if (isAnswerMode && !isExamMode) {
+                    if (answer.correct) {
+                        answerDiv.classList.add('correct-answer-mode');
+                    } else {
+                        answerDiv.classList.add('other-answer-mode');
+                    }
+                }
+
+                // Apply timer expired styling
+                if (timerExpired) {
+                    answerDiv.classList.add('timer-expired');
+                }
+            });
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+        }
+
+        // Select answer with correct answer tracking
+        function selectAnswer(answerIndex, isCorrect) {
+            if (timerExpired) return;
+
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            // In exam mode, ensure only one option can be selected (radio button behavior)
+            if (isExamMode) {
+                answerOptions.forEach(option => option.classList.remove('selected'));
+            }
+
+            // Store the answer with correctness info
+            userAnswers[questionIndex] = {
+                selectedIndex: answerIndex,
+                isCorrect: isCorrect
+            };
+
+            // Update visual selection
+            answerOptions[answerIndex].classList.add('selected');
+
+            // In non-exam mode, show immediate feedback
+            if (!isExamMode) {
+                const originalQuestion = questions[questionIndex];
+                answerOptions.forEach((option, index) => {
+                    option.classList.remove('correct', 'incorrect');
+                    // Find the correct answer in the shuffled options
+                    const currentAnswers = Array.from(document.querySelectorAll('.option-text')).map(el => el.textContent);
+                    const correctAnswerText = originalQuestion.answers.find(a => a.correct).text;
+                    const correctIndex = currentAnswers.indexOf(correctAnswerText);
+                    
+                    if (index === correctIndex) {
+                        option.classList.add('correct');
+                    } else if (index === answerIndex) {
+                        option.classList.add('incorrect');
+                    }
+                    option.classList.add('disabled');
+                });
+            }
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Navigation functions
+        function nextQuestion() {
+            if (currentQuestionIndex < selectedQuestionCount - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestion(questionIndex) {
+            if (questionIndex < selectedQuestionCount) {
+                currentQuestionIndex = questionIndex;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestionNumber() {
+            const input = document.getElementById('jumpInput');
+            const questionNumber = parseInt(input.value);
+            
+            if (questionNumber >= 1 && questionNumber <= selectedQuestionCount) {
+                jumpToQuestion(questionNumber - 1);
+                input.value = '';
+            } else {
+                alert(`Please enter a number between 1 and ${selectedQuestionCount}`);
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === selectedQuestionCount - 1) {
+                nextBtn.style.display = 'none';
+                if (isExamMode) {
+                    submitBtn.style.display = 'inline-block';
+                    finishBtn.style.display = 'none';
+                } else {
+                    finishBtn.style.display = 'inline-block';
+                    submitBtn.style.display = 'none';
+                }
+            } else {
+                nextBtn.style.display = 'inline-block';
+                finishBtn.style.display = 'none';
+                submitBtn.style.display = 'none';
+            }
+
+            // Show submit button in exam mode for instant results
+            if (isExamMode && currentQuestionIndex < selectedQuestionCount - 1) {
+                submitBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Question grid functions
+        function createQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createMobileQuestionGrid() {
+            const grid = document.getElementById('mobileQuestionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createExamQuestionGrid() {
+            const grid = document.getElementById('examGridContainer');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'exam-grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function updateQuestionGrid() {
+            const gridItems = document.querySelectorAll('#questionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateMobileQuestionGrid() {
+            const gridItems = document.querySelectorAll('#mobileQuestionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateExamQuestionGrid() {
+            const gridItems = document.querySelectorAll('#examGridContainer .exam-grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    item.classList.add('answered');
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        // Mobile dropdown functions
+        function toggleMobileDropdown() {
+            const content = document.getElementById('dropdownContent');
+            const arrow = document.getElementById('dropdownArrow');
+            
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Exam grid toggle functions
+        function toggleExamGrid() {
+            const container = document.getElementById('examGridContainer');
+            const toggle = document.getElementById('examGridToggle');
+            
+            examGridExpanded = !examGridExpanded;
+            
+            if (examGridExpanded) {
+                container.classList.remove('collapsed');
+                toggle.textContent = 'Collapse';
+            } else {
+                container.classList.add('collapsed');
+                toggle.textContent = 'Expand';
+            }
+        }
+
+        // Mode toggle functions
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            const btn = document.getElementById('darkModeBtn');
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                btn.classList.add('active');
+                btn.textContent = '☀️ Light Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🌙 Dark Mode';
+            }
+        }
+
+        function toggleAnswerMode() {
+            isAnswerMode = !isAnswerMode;
+            const btn = document.getElementById('answerModeBtn');
+            
+            if (isAnswerMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔒 Hide Answers';
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '💡 Answer Mode';
+            }
+            
+            loadQuestion(); // Reload to apply answer mode styling
+        }
+
+        // NEW: Question shuffle mode for non-exam mode
+        function toggleQuestionShuffleMode() {
+            isQuestionShuffleMode = !isQuestionShuffleMode;
+            const btn = document.getElementById('questionShuffleModeBtn');
+            
+            if (isQuestionShuffleMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔀 Shuffle: ON';
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '🔀 Shuffle Questions';
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Question shuffle toggle for exam mode
+        function toggleQuestionShuffle() {
+            isQuestionShuffleEnabled = !isQuestionShuffleEnabled;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            if (isQuestionShuffleEnabled) {
+                btn.classList.add('active');
+                btn.textContent = 'Enabled';
+                settings.classList.add('hidden');
+                display.classList.add('active');
+                displayText.textContent = 'Shuffle: ON';
+                resetBtn.classList.add('visible');
+                
+                // Apply shuffle
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = 'Enable';
+                settings.classList.remove('hidden');
+                display.classList.remove('active');
+                displayText.textContent = 'Shuffle: Off';
+                resetBtn.classList.remove('visible');
+                
+                // Restore original order
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question shuffle
+        function resetQuestionShuffle() {
+            isQuestionShuffleEnabled = false;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            btn.classList.remove('active');
+            btn.textContent = 'Enable';
+            settings.classList.remove('hidden');
+            display.classList.remove('active');
+            displayText.textContent = 'Shuffle: Off';
+            resetBtn.classList.remove('visible');
+            
+            // Restore original order
+            currentQuestionOrder = [...originalQuestionOrder];
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        function toggleExamMode() {
+            isExamMode = !isExamMode;
+            const btn = document.getElementById('examModeBtn');
+            const exitBtn = document.getElementById('exitBtnText');
+            const title = document.querySelector('.title');
+            
+            if (isExamMode) {
+                document.body.classList.add('exam-mode');
+                btn.classList.add('active');
+                btn.textContent = '📝 Exit Exam Mode';
+                exitBtn.textContent = 'Exit Exam Mode';
+                title.textContent = 'EXAM MODE';
+                
+                // Reset all answers and reload
+                userAnswers = new Array(questions.length).fill(null);
+                currentQuestionIndex = 0;
+                loadQuestion();
+                updateNavigationButtons();
+            } else {
+                document.body.classList.remove('exam-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🎓 Simulate Exam Mode';
+                exitBtn.textContent = 'Exit';
+                title.textContent = 'Enhanced Quiz Application';
+                
+                loadQuestion(); // Reload to remove exam mode styling
+            }
+        }
+
+        // NEW: Enhanced question count functions
+        function setQuestionCount() {
+            const input = document.getElementById('questionCountInput');
+            const newCount = parseInt(input.value) || questions.length;
+            
+            if (newCount < 1 || newCount > questions.length) {
+                alert(`Please enter a number between 1 and ${questions.length}`);
+                input.value = selectedQuestionCount;
+                return;
+            }
+            
+            selectedQuestionCount = newCount;
+            
+            // Hide settings and show display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            
+            settings.classList.add('hidden');
+            displayText.textContent = `${selectedQuestionCount} / ${questions.length}`;
+            resetBtn.classList.add('visible');
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question count
+        function resetQuestionCount() {
+            selectedQuestionCount = questions.length;
+            
+            // Show settings and hide display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            const input = document.getElementById('questionCountInput');
+            
+            settings.classList.remove('hidden');
+            displayText.textContent = `${questions.length} / ${questions.length}`;
+            resetBtn.classList.remove('visible');
+            input.value = questions.length;
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // Timer functions
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+            const totalSeconds = minutes * 60 + seconds;
+
+            if (totalSeconds <= 0) {
+                alert('Please set a valid time');
+                return;
+            }
+
+            timerActive = true;
+            timerExpired = false;
+            let remainingTime = totalSeconds;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.add('active');
+            timerResetBtn.classList.add('visible');
+            timerSettings.classList.add('hidden');
+
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    timerExpired = true;
+                    timerActive = false;
+                    timer.classList.remove('active');
+                    timerDisplay.textContent = 'Time expired!';
+                    
+                    // Show timer expired overlay
+                    document.getElementById('timerExpiredOverlay').classList.add('visible');
+                    document.getElementById('quizSection').classList.add('timer-expired');
+                    
+                    // Auto-submit quiz
+                    setTimeout(() => {
+                        finishQuiz();
+                    }, 3000);
+                }
+
+                remainingTime--;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerActive = false;
+            timerExpired = false;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.remove('active');
+            timerResetBtn.classList.remove('visible');
+            timerSettings.classList.remove('hidden');
+            timerDisplay.textContent = 'No timer set';
+
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+            document.getElementById('quizSection').classList.remove('timer-expired');
+
+            loadQuestion(); // Reload to remove timer expired styling
+        }
+
+        function hideTimerExpiredOverlay() {
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+        }
+
+        // Quiz completion
+        function finishQuiz() {
+            const answeredQuestions = userAnswers.slice(0, selectedQuestionCount).filter(answer => answer !== null).length;
+            const correctAnswers = userAnswers.slice(0, selectedQuestionCount).reduce((count, answer, index) => {
+                if (answer !== null && answer.isCorrect) {
+                    return count + 1;
+                }
+                return count;
+            }, 0);
+
+            const percentage = Math.round((correctAnswers / selectedQuestionCount) * 100);
+            const passed = percentage >= 60;
+
+            if (isExamMode) {
+                // Show result overlay for exam mode
+                const resultOverlay = document.getElementById('resultOverlay');
+                const resultMessage = document.getElementById('resultMessage');
+                const resultTitle = document.getElementById('resultTitle');
+                const resultStats = document.getElementById('resultStats');
+
+                resultTitle.textContent = passed ? '🎉 PASSED!' : '❌ FAILED';
+                resultTitle.className = `result-title ${passed ? 'passed' : 'failed'}`;
+                resultMessage.className = `result-message ${passed ? 'passed' : 'failed'}`;
+
+                resultStats.innerHTML = `
+                    <strong>Questions Answered:</strong> ${answeredQuestions} / ${selectedQuestionCount}<br>
+                    <strong>Correct Answers:</strong> ${correctAnswers} / ${selectedQuestionCount}<br>
+                    <strong>Percentage:</strong> ${percentage}%<br><br>
+                    <em>${passed ? 'Congratulations! You passed the exam.' : 'You need 60% to pass. Better luck next time!'}</em>
+                `;
+
+                resultOverlay.classList.add('visible');
+            } else {
+                // Show alert for normal mode
+                let message = `Quiz Completed!\n\n`;
+                message += `Questions Answered: ${answeredQuestions} / ${selectedQuestionCount}\n`;
+                message += `Correct Answers: ${correctAnswers} / ${selectedQuestionCount}\n`;
+                message += `Percentage: ${percentage}%`;
+
+                alert(message);
+            }
+        }
+
+        function hideResultOverlay() {
+            document.getElementById('resultOverlay').classList.remove('visible');
+        }
+
+        function exitQuiz() {
+            if (isExamMode) {
+                toggleExamMode();
+            } else {
+                if (confirm('Are you sure you want to exit the quiz?')) {
+                    window.close();
+                }
+            }
+        }
+
+        // Initialize the quiz when page loads
+        document.addEventListener('DOMContentLoaded', initializeQuiz);
+    </script>
+</body>
+</html>
